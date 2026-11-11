@@ -13,16 +13,17 @@ WORKDIR /app
 FROM base AS dependencies
 COPY package.json package-lock.json .npmrc ./
 COPY apps/api/package.json ./apps/api/package.json
-RUN npm ci
+COPY apps/web/package.json ./apps/web/package.json
+RUN npm ci --workspace=@real-estate/api --include-workspace-root=false --include=dev
 
 # This target retains Prisma CLI and tsx for a separate migration/admin job.
 FROM dependencies AS build
 COPY apps/api ./apps/api
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npm run db:generate \
-    && npm run build
+    && npm run build -w @real-estate/api
 
 FROM build AS production-dependencies
-RUN npm prune --omit=dev \
+RUN npm prune --omit=dev --workspace=@real-estate/api --include-workspace-root=false \
     && npm cache clean --force
 
 FROM base AS runtime
@@ -36,6 +37,8 @@ COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_m
 COPY --from=build --chown=node:node /app/package.json ./package.json
 COPY --from=build --chown=node:node /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build --chown=node:node /app/apps/api/dist ./apps/api/dist
+COPY --from=build --chown=node:node /app/apps/api/demo-assets ./apps/api/demo-assets
+COPY --chown=node:node scripts/start-replit.mjs ./scripts/start-replit.mjs
 RUN mkdir -p /app/apps/api/uploads \
     && chown node:node /app/apps/api/uploads
 WORKDIR /app/apps/api
@@ -43,4 +46,4 @@ USER node
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/api/v1/health/ready',{signal:AbortSignal.timeout(3000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "dist/main.js"]
+CMD ["node", "/app/scripts/start-replit.mjs", "--api-only"]

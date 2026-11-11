@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "source": "original-demo.webp",
+      "storageKey": "de000000-0000-4000-8000-000000000007.webp"
+    },
+    {
+      "source": "property-01.webp",
+      "storageKey": "de100000-0000-4000-8000-000000000259.webp"
+    },
+    {
+      "source": "property-02.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025a.webp"
+    },
+    {
+      "source": "property-03.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025b.webp"
+    },
+    {
+      "source": "property-04.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025c.webp"
+    },
+    {
+      "source": "property-05.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025d.webp"
+    },
+    {
+      "source": "property-06.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025e.webp"
+    },
+    {
+      "source": "property-07.webp",
+      "storageKey": "de100000-0000-4000-8000-00000000025f.webp"
+    },
+    {
+      "source": "property-08.webp",
+      "storageKey": "de100000-0000-4000-8000-000000000260.webp"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import {
 } from '@prisma/client';
 import sharp from 'sharp';
 import { PasswordService } from '../src/auth/password.service';
+import { seedCatalogue } from './seed-catalog';
 import {
   createScriptDatabase,
   reportScriptFailure,
@@ -309,6 +310,7 @@ export async function seedDemo(prisma: PrismaClient, uploadDirectory: string): P
     },
     { timeout: 30000 },
   );
+  await seedCatalogue(prisma, uploadDirectory);
 }
 
 async function main(): Promise<void> {

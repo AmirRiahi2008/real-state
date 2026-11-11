@@ -1,0 +1,21 @@
+entrypoint = "apps/web/app/[locale]/page.tsx"
+modules = ["nodejs-24", "web"]
+run = ["node", "scripts/start-replit.mjs", "--dev"]
+hidden = [".git", "node_modules", "apps/api/dist", "apps/web/.next", "apps/api/uploads"]
+
+[env]
+PORT = "5000"
+API_PORT = "4000"
+NEXT_TELEMETRY_DISABLED = "1"
+
+[deployment]
+build = ["sh", "-c", "npm ci && npm run db:generate && npm run build -w @real-estate/api && npm run build -w @real-estate/web"]
+run = ["node", "scripts/start-replit.mjs"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[packager.features]
+guessImports = false
+enabledForHosting = false

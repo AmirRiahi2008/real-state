@@ -15,3 +15,8 @@ uploads/
 .agents/
 research/
 .artifacts/
+
+.next/
+.vercel/
+playwright-report/
+test-results/

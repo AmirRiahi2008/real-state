@@ -12,6 +12,7 @@ import { createHash } from 'node:crypto';
 import { Request, Response } from 'express';
 import { RedisService } from '../infra/redis.service';
 import { RATE_LIMIT_KEY } from './rate-limit.decorator';
+import { rateLimitIdentity } from './client-identity';
 const INCREMENT = `local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return {n,redis.call('TTL',KEYS[1])}`;
 @Injectable()
 export class RateLimitGuard implements CanActivate {
@@ -29,7 +30,7 @@ export class RateLimitGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     ) ?? { limit: req.method === 'GET' ? 120 : 30, windowSeconds: 60 };
     const identity = createHash('sha256')
-      .update(req.ip ?? 'unknown')
+      .update(rateLimitIdentity(req, this.config.get<string>('WEB_GATEWAY_SECRET')))
       .digest('hex');
     let count: number;
     let ttl: number;

@@ -7,6 +7,10 @@ const schema = z
     HOST: z.string().default('127.0.0.1'),
     DATABASE_URL: z.url().refine((v) => /^postgres(ql)?:\/\//.test(v)),
     REDIS_URL: z.url().refine((v) => /^rediss?:\/\//.test(v)),
+    WEB_GATEWAY_SECRET: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().min(64).optional(),
+    ),
     RATE_LIMIT_NAMESPACE: z
       .string()
       .regex(/^[A-Za-z0-9:_-]{1,100}$/)

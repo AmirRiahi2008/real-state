@@ -1,0 +1,74 @@
+# This Blueprint creates only the public demonstration API. The existing free
+# PostgreSQL and Key Value instances stay outside this Blueprint's management.
+services:
+  - type: web
+    name: oriva-demo-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    repo: https://github.com/AmirRiahi2008/real-state
+    branch: master
+    autoDeployTrigger: commit
+    healthCheckPath: /api/v1/health/ready
+    buildCommand: >-
+      npm ci --workspace=@real-estate/api --include-workspace-root=false --include=dev &&
+      npm run db:generate -w @real-estate/api &&
+      npm run build -w @real-estate/api &&
+      npm run db:deploy -w @real-estate/api &&
+      NODE_ENV=development SEED_DEMO=true npm run db:seed -w @real-estate/api
+    startCommand: node scripts/start-replit.mjs --api-only
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_PRODUCTION
+        value: 'false'
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oriva-demo-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: oriva-demo-redis
+          property: connectionString
+      - key: JWT_SECRET_SEED
+        generateValue: true
+      # Optional WEB_GATEWAY_SECRET is added privately after service creation
+      # and shared with the Vercel server only. It is never a browser variable.
+      - key: JWT_ISSUER
+        value: oriva-demo-api
+      - key: JWT_AUDIENCE
+        value: oriva-public-website
+      - key: COOKIE_SECURE
+        value: 'true'
+      - key: SWAGGER_ENABLED
+        value: 'false'
+      - key: TRUST_PROXY_HOPS
+        value: '0'
+      - key: RATE_LIMIT_NAMESPACE
+        value: oriva-demo:rate
+      # Update these exact origins if the final Vercel domain differs.
+      - key: CORS_ORIGINS
+        value: https://oriva-real-estate.vercel.app
+      - key: FRONTEND_URL
+        value: https://oriva-real-estate.vercel.app
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: MAX_UPLOAD_BYTES
+        value: '5242880'
+      # Public enquiries persist to PostgreSQL and do not send email. Account
+      # mail is intentionally unconfigured in this demo; Free blocks SMTP ports.
+      - key: SMTP_HOST
+        value: localhost
+      - key: SMTP_PORT
+        value: '587'
+      - key: SMTP_SECURE
+        value: 'false'
+      - key: SMTP_FROM
+        value: ORIVA Demo <no-reply@example.test>
+      - key: SMTP_USER
+        value: ''
+      - key: SMTP_PASS
+        value: ''

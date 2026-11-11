@@ -6,10 +6,15 @@ import { AppModule } from './app.module';
 import { setupApp } from './common/setup-app';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: false });
-  setupApp(app);
-  const config = app.get(ConfigService);
-  await app.listen(config.getOrThrow<number>('PORT'), config.getOrThrow<string>('HOST'));
-  Logger.log(`API listening on port ${config.get<number>('PORT')}`, 'Bootstrap');
+  try {
+    setupApp(app);
+    const config = app.get(ConfigService);
+    await app.listen(config.getOrThrow<number>('PORT'), config.getOrThrow<string>('HOST'));
+    Logger.log(`API listening on port ${config.get<number>('PORT')}`, 'Bootstrap');
+  } catch (error) {
+    await app.close();
+    throw error;
+  }
 }
 void bootstrap().catch(() => {
   Logger.error(

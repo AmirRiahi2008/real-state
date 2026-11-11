@@ -1,4 +1,4 @@
-name: Backend CI
+name: Website and API CI
 
 on:
   push:
@@ -83,6 +83,24 @@ jobs:
         run: npm run check
       - name: Exercise real PostgreSQL, Redis and SMTP integration
         run: npm run test:e2e
+      - name: Seed the demonstration collection for browser tests
+        run: SEED_DEMO=true npm run db:seed
+      - name: Install the pinned browser
+        run: npx playwright install --with-deps chromium
+      - name: Start the API for browser tests
+        run: |
+          npm run start:prod -w @real-estate/api > /tmp/oriva-ci-api.log 2>&1 &
+          node --input-type=module <<'JS'
+          for (let attempt = 0; attempt < 45; attempt++) {
+            try {
+              if ((await fetch('http://127.0.0.1:4000/api/v1/health/ready')).ok) process.exit(0);
+            } catch {}
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          throw new Error('The test API did not become ready');
+          JS
+      - name: Verify the 3D website and public workflows in Chromium
+        run: npm run test:web
       - name: Export the API contract
         run: npm run openapi:export
       - name: Build the production image
