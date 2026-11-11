@@ -17,13 +17,26 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   if (!allowed || resource.split('/').includes('manage'))
     return Response.json({ message: 'Not found' }, { status: 404 });
   const destination = new URL(
-    `/api/${resource}`,
+    `${process.env.BACKEND_API_PREFIX || '/api/v1'}/${path.slice(1).join('/')}`,
     process.env.BACKEND_INTERNAL_URL || 'http://127.0.0.1:4000',
   );
   destination.search = request.nextUrl.search;
   if (request.method === 'POST') {
     const origin = request.headers.get('origin');
-    if (origin && origin !== request.nextUrl.origin)
+    const allowedOrigins = new Set(
+      [
+        process.env.NEXT_PUBLIC_SITE_URL,
+        process.env.RENDER_EXTERNAL_URL,
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+        process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : undefined,
+        process.env.NODE_ENV !== 'production' || !process.env.NEXT_PUBLIC_SITE_URL
+          ? request.nextUrl.origin
+          : undefined,
+      ].filter(Boolean),
+    );
+    if (origin && !allowedOrigins.has(origin))
       return Response.json({ message: 'Origin is not allowed' }, { status: 403 });
     if (!request.headers.get('content-type')?.includes('application/json'))
       return Response.json({ message: 'JSON is required' }, { status: 415 });

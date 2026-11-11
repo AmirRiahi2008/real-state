@@ -12,9 +12,10 @@ function queryString(query?: Record<string, string>): string {
 }
 async function serverApi<T>(path: string): Promise<T> {
   const base = process.env.BACKEND_INTERNAL_URL || 'http://127.0.0.1:4000';
+  const prefix = process.env.BACKEND_API_PREFIX || '/api/v1';
   let response: Response;
   try {
-    response = await fetch(`${base.replace(/\/$/, '')}/api/v1${path}`, {
+    response = await fetch(`${base.replace(/\/$/, '')}${prefix}${path}`, {
       cache: 'no-store',
       headers: gatewayHeaders(await headers()),
       signal: AbortSignal.timeout(base.includes('.onrender.com') ? 90000 : 12000),
