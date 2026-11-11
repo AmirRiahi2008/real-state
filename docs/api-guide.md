@@ -19,7 +19,7 @@ Common status codes are 400 validation, 401 missing/expired session, 403 insuffi
 
 Register at `POST /auth/register` with `email`, `password`, `firstName`, `lastName`. Passwords are 12–128 characters for customer registration and password changes. Registration always uses the `CUSTOMER` role. The 202 response does not reveal whether an account already exists. Verify the emailed token using `POST /auth/email/verify` with `{ "token": "..." }`.
 
-Login requires an exact allowed `Origin`, even for curl or Swagger. The local allowed origin is `http://localhost:3000`, while the API runs on port 4000. Swagger's automatic same-origin login request therefore needs an appropriate allowed-origin configuration or an external HTTP client. Avoid adding arbitrary origins merely to make login work.
+Login requires an exact allowed `Origin`, even for curl or Swagger. The generated development configuration explicitly allows `http://localhost:3000` for Next.js and `http://localhost:4000` for local Swagger. If you keep an older `.env`, add the Swagger origin to `CORS_ORIGINS` before using its login form. Production must use your exact HTTPS application origins.
 
 ```bash
 curl -i -c /tmp/estate-local-cookies.txt \
