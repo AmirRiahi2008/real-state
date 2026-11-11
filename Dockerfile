@@ -3,7 +3,8 @@ ARG NODE_VERSION=24
 FROM node:${NODE_VERSION}-bookworm-slim AS base
 # Bootstrap HTTPS from Node's bundled roots; the slim image has no system CA bundle.
 RUN node -e "const fs=require('node:fs');fs.mkdirSync('/etc/ssl/certs',{recursive:true});fs.writeFileSync('/etc/ssl/certs/ca-certificates.crt',require('node:tls').rootCertificates.join('\\n'))" \
-    && sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && sed -i -e 's|http://deb.debian.org/debian-security|https://security.debian.org/debian-security|g' \
+        -e 's|http://deb.debian.org/debian|https://ftp.debian.org/debian|g' /etc/apt/sources.list.d/debian.sources \
     && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates openssl \
     && rm -rf /var/lib/apt/lists/*
