@@ -1,0 +1,37 @@
+{
+  "name": "uae-real-estate",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "setup:local": "node scripts/setup-local.mjs",
+    "infra:up": "docker compose --env-file apps/api/.env up -d --wait postgres redis mailpit",
+    "infra:down": "docker compose --env-file apps/api/.env stop",
+    "admin:create": "npm run admin:create -w @real-estate/api",
+    "openapi:export": "npm run openapi:export -w @real-estate/api",
+    "dev": "npm run start:dev -w @real-estate/api",
+    "build": "npm run build -w @real-estate/api",
+    "start": "npm run start:prod -w @real-estate/api",
+    "lint": "npm run lint -w @real-estate/api",
+    "typecheck": "npm run typecheck -w @real-estate/api",
+    "test": "npm run test -w @real-estate/api",
+    "test:e2e": "npm run test:e2e -w @real-estate/api",
+    "db:generate": "npm run db:generate -w @real-estate/api --",
+    "db:migrate": "npm run db:migrate -w @real-estate/api --",
+    "db:deploy": "npm run db:deploy -w @real-estate/api --",
+    "db:seed": "npm run db:seed -w @real-estate/api",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "format": "prettier --write \"apps/api/src/**/*.ts\" \"apps/api/test/**/*.cjs\" apps/api/prisma/seed.ts scripts",
+    "format:check": "prettier --check \"apps/api/src/**/*.ts\" \"apps/api/test/**/*.cjs\" apps/api/prisma/seed.ts scripts"
+  },
+  "overrides": {
+    "glob": "14.0.4",
+    "minimatch@>=7 <11": "11.0.7"
+  }
+}

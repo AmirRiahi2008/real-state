@@ -1,0 +1,5035 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "summary": "Register a customer; verification is delivered by email",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Sign in; requires an allowlisted Origin header",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Rotate session; requires Origin, refresh cookie and X-CSRF-Token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/logout-all": {
+      "post": {
+        "operationId": "AuthController_logoutAll_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/password-reset/request": {
+      "post": {
+        "operationId": "AuthController_requestReset_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "AuthController_reset_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/email/verify": {
+      "post": {
+        "operationId": "AuthController_verify_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/email/resend": {
+      "post": {
+        "operationId": "AuthController_resend_v1",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/areas": {
+      "get": {
+        "operationId": "CatalogController_areas_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "emirate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DUBAI",
+                "ABU_DHABI",
+                "SHARJAH",
+                "AJMAN",
+                "RAS_AL_KHAIMAH",
+                "FUJAIRAH",
+                "UMM_AL_QUWAIN"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/areas/{slug}": {
+      "get": {
+        "operationId": "CatalogController_area_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/developers": {
+      "get": {
+        "operationId": "CatalogController_developers_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/developers/{slug}": {
+      "get": {
+        "operationId": "CatalogController_developer_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/amenities": {
+      "get": {
+        "operationId": "CatalogController_amenities_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/agents": {
+      "get": {
+        "operationId": "CatalogController_agents_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/agents/{slug}": {
+      "get": {
+        "operationId": "CatalogController_agent_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/catalog/autocomplete": {
+      "get": {
+        "operationId": "CatalogController_autocomplete_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/areas/manage": {
+      "post": {
+        "operationId": "CatalogController_createArea_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAreaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/areas/manage/{id}": {
+      "patch": {
+        "operationId": "CatalogController_updateArea_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAreaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/developers/manage": {
+      "post": {
+        "operationId": "CatalogController_createDeveloper_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeveloperDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/developers/manage/{id}": {
+      "patch": {
+        "operationId": "CatalogController_updateDeveloper_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDeveloperDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/amenities/manage": {
+      "post": {
+        "operationId": "CatalogController_createAmenity_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAmenityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/amenities/manage/{id}": {
+      "patch": {
+        "operationId": "CatalogController_updateAmenity_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAmenityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/agents/manage": {
+      "post": {
+        "operationId": "CatalogController_createAgent_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAgentProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/agents/manage/{id}": {
+      "patch": {
+        "operationId": "CatalogController_updateAgent_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAgentProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/content": {
+      "get": {
+        "operationId": "ContentController_list_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ARTICLE",
+                "AREA_GUIDE",
+                "MARKET_REPORT",
+                "BUYER_GUIDE",
+                "SERVICE"
+              ]
+            }
+          },
+          {
+            "name": "areaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/content/manage": {
+      "get": {
+        "operationId": "ContentController_manage_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ARTICLE",
+                "AREA_GUIDE",
+                "MARKET_REPORT",
+                "BUYER_GUIDE",
+                "SERVICE"
+              ]
+            }
+          },
+          {
+            "name": "areaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      },
+      "post": {
+        "operationId": "ContentController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/content/manage/{id}": {
+      "get": {
+        "operationId": "ContentController_managed_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      },
+      "patch": {
+        "operationId": "ContentController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/content/manage/{id}/publish": {
+      "post": {
+        "operationId": "ContentController_publish_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/content/manage/{id}/archive": {
+      "post": {
+        "operationId": "ContentController_archive_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/content/{slug}": {
+      "get": {
+        "operationId": "ContentController_detail_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Content"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "operationId": "UsersController_list_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CUSTOMER",
+                "AGENT",
+                "ADMIN"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/me/profile": {
+      "patch": {
+        "operationId": "UsersController_updateProfile_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOwnProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "patch": {
+        "operationId": "UsersController_updateAccess_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAccessDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/listings": {
+      "get": {
+        "operationId": "ListingsController_findAll_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "purpose",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SALE",
+                "RENT"
+              ]
+            }
+          },
+          {
+            "name": "propertyType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APARTMENT",
+                "VILLA",
+                "TOWNHOUSE",
+                "PENTHOUSE",
+                "DUPLEX",
+                "STUDIO",
+                "OFFICE",
+                "RETAIL",
+                "LAND",
+                "WAREHOUSE"
+              ]
+            }
+          },
+          {
+            "name": "emirate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DUBAI",
+                "ABU_DHABI",
+                "SHARJAH",
+                "AJMAN",
+                "RAS_AL_KHAIMAH",
+                "FUJAIRAH",
+                "UMM_AL_QUWAIN"
+              ]
+            }
+          },
+          {
+            "name": "completion",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "READY",
+                "OFF_PLAN"
+              ]
+            }
+          },
+          {
+            "name": "availability",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AVAILABLE",
+                "RESERVED",
+                "SOLD",
+                "RENTED"
+              ]
+            }
+          },
+          {
+            "name": "furnishing",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "UNFURNISHED",
+                "SEMI_FURNISHED",
+                "FURNISHED"
+              ]
+            }
+          },
+          {
+            "name": "areaIds",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxItems": 20,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "amenityIds",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxItems": 20,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "projectId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": false,
+            "in": "query",
+            "description": "Public agent profile ID returned by /agents.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "description": "AED decimal string",
+            "schema": {
+              "example": "1000000.00",
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "5000000.00",
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAreaSqm",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxAreaSqm",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bedrooms",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "minBathrooms",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isExclusive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "priceOnRequest",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "reducedPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "vacantBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2027-12-31",
+              "type": "string"
+            }
+          },
+          {
+            "name": "south",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "type": "number"
+            }
+          },
+          {
+            "name": "north",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "type": "number"
+            }
+          },
+          {
+            "name": "west",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "type": "number"
+            }
+          },
+          {
+            "name": "east",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "recent",
+              "type": "string",
+              "enum": [
+                "recent",
+                "price_asc",
+                "price_desc",
+                "area_asc",
+                "area_desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Search published properties; AED money and canonical square metres",
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/mine": {
+      "get": {
+        "operationId": "ListingsController_mine_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/{id}": {
+      "get": {
+        "operationId": "ListingsController_managedOne_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      },
+      "patch": {
+        "operationId": "ListingsController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateListingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage": {
+      "post": {
+        "operationId": "ListingsController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateListingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/{id}/submit": {
+      "post": {
+        "operationId": "ListingsController_submit_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/{id}/publish": {
+      "post": {
+        "operationId": "ListingsController_publish_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/{id}/reject": {
+      "post": {
+        "operationId": "ListingsController_reject_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/manage/{id}/archive": {
+      "post": {
+        "operationId": "ListingsController_archive_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/{slug}/related": {
+      "get": {
+        "operationId": "ListingsController_related_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/listings/{slug}": {
+      "get": {
+        "operationId": "ListingsController_findOne_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Listings"
+        ]
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "operationId": "ProjectsController_findAll_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "areaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "developerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "emirate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DUBAI",
+                "ABU_DHABI",
+                "SHARJAH",
+                "AJMAN",
+                "RAS_AL_KHAIMAH",
+                "FUJAIRAH",
+                "UMM_AL_QUWAIN"
+              ]
+            }
+          },
+          {
+            "name": "propertyType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APARTMENT",
+                "VILLA",
+                "TOWNHOUSE",
+                "PENTHOUSE",
+                "DUPLEX",
+                "STUDIO",
+                "OFFICE",
+                "RETAIL",
+                "LAND",
+                "WAREHOUSE"
+              ]
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bedrooms",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "priceOnRequest",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "handoverFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "handoverTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "recent",
+              "type": "string",
+              "enum": [
+                "recent",
+                "price_asc",
+                "price_desc",
+                "handover"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage": {
+      "get": {
+        "operationId": "ProjectsController_managedPage_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      },
+      "post": {
+        "operationId": "ProjectsController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage/{id}": {
+      "get": {
+        "operationId": "ProjectsController_managedOne_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      },
+      "patch": {
+        "operationId": "ProjectsController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage/{id}/submit": {
+      "post": {
+        "operationId": "ProjectsController_submit_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage/{id}/publish": {
+      "post": {
+        "operationId": "ProjectsController_publish_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage/{id}/reject": {
+      "post": {
+        "operationId": "ProjectsController_reject_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/manage/{id}/archive": {
+      "post": {
+        "operationId": "ProjectsController_archive_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectTransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{slug}": {
+      "get": {
+        "operationId": "ProjectsController_findOne_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Off-plan projects"
+        ]
+      }
+    },
+    "/api/v1/leads": {
+      "post": {
+        "operationId": "LeadsController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "summary": "Request information, a viewing, a valuation or mortgage help; never returns lead PII",
+        "tags": [
+          "Leads"
+        ]
+      },
+      "get": {
+        "operationId": "LeadsController_list_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NEW",
+                "CONTACTED",
+                "QUALIFIED",
+                "CLOSED"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ENQUIRY",
+                "VIEWING",
+                "VALUATION",
+                "MORTGAGE",
+                "PROJECT"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Leads"
+        ]
+      }
+    },
+    "/api/v1/leads/{id}": {
+      "get": {
+        "operationId": "LeadsController_one_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Leads"
+        ]
+      },
+      "patch": {
+        "operationId": "LeadsController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLeadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Leads"
+        ]
+      }
+    },
+    "/api/v1/me/favorites": {
+      "get": {
+        "operationId": "WorkspaceController_favorites_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my favorites that are still publicly visible",
+        "tags": [
+          "My workspace"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkspaceController_clearFavorites_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear all my favorites, including unavailable listings",
+        "tags": [
+          "My workspace"
+        ]
+      }
+    },
+    "/api/v1/me/favorites/{listingId}": {
+      "put": {
+        "operationId": "WorkspaceController_addFavorite_v1",
+        "parameters": [
+          {
+            "name": "listingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkspaceController_removeFavorite_v1",
+        "parameters": [
+          {
+            "name": "listingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      }
+    },
+    "/api/v1/me/saved-searches": {
+      "get": {
+        "operationId": "WorkspaceController_savedSearches_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      },
+      "post": {
+        "operationId": "WorkspaceController_createSearch_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSavedSearchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      }
+    },
+    "/api/v1/me/saved-searches/{id}/listings": {
+      "get": {
+        "operationId": "WorkspaceController_savedResults_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      }
+    },
+    "/api/v1/me/saved-searches/{id}": {
+      "get": {
+        "operationId": "WorkspaceController_savedSearch_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      },
+      "patch": {
+        "operationId": "WorkspaceController_updateSearch_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSavedSearchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkspaceController_removeSearch_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "My workspace"
+        ]
+      }
+    },
+    "/api/v1/calculators/mortgage": {
+      "get": {
+        "operationId": "CalculatorsController_mortgage_v1",
+        "parameters": [
+          {
+            "name": "priceAed",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000000000,
+              "example": 2000000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "downPaymentPercent",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 100,
+              "example": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "annualInterestRate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 30,
+              "example": 4,
+              "type": "number"
+            }
+          },
+          {
+            "name": "years",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 30,
+              "example": 25,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Illustrative fixed-rate monthly mortgage calculation; AED outputs are decimal strings",
+        "tags": [
+          "Calculators"
+        ]
+      }
+    },
+    "/api/v1/calculators/rental-yield": {
+      "get": {
+        "operationId": "CalculatorsController_rentalYield_v1",
+        "parameters": [
+          {
+            "name": "priceAed",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000000000,
+              "example": 2000000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "annualRentAed",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 1000000000,
+              "example": 150000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "annualCostsAed",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 1000000000,
+              "example": 20000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Gross and net annual rental yield using supplied costs",
+        "tags": [
+          "Calculators"
+        ]
+      }
+    },
+    "/api/v1/health/live": {
+      "get": {
+        "operationId": "HealthController_live_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/media": {
+      "post": {
+        "operationId": "MediaController_upload_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/v1/media/manage/mine": {
+      "get": {
+        "operationId": "MediaController_mine_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/v1/media/manage/{id}/file": {
+      "get": {
+        "operationId": "MediaController_managedFile_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/v1/media/{id}/file": {
+      "get": {
+        "operationId": "MediaController_file_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/v1/media/{id}": {
+      "delete": {
+        "operationId": "MediaController_remove_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Media"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "UAE Real Estate API",
+    "description": "AED decimal strings, square metres, explicit English/Arabic fields. See docs/api-guide.md for permissions and session flow.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "customer@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "customer@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "EmailDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "customer@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Single-use token from the email link"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "TokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Single-use token from the email link"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateAreaDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "descriptionEn": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "descriptionAr": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "emirate": {
+            "type": "string",
+            "enum": [
+              "DUBAI",
+              "ABU_DHABI",
+              "SHARJAH",
+              "AJMAN",
+              "RAS_AL_KHAIMAH",
+              "FUJAIRAH",
+              "UMM_AL_QUWAIN"
+            ]
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "slug",
+          "nameEn",
+          "nameAr",
+          "emirate"
+        ]
+      },
+      "UpdateAreaDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "descriptionEn": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "descriptionAr": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "emirate": {
+            "enum": [
+              "DUBAI",
+              "ABU_DHABI",
+              "SHARJAH",
+              "AJMAN",
+              "RAS_AL_KHAIMAH",
+              "FUJAIRAH",
+              "UMM_AL_QUWAIN"
+            ],
+            "type": "string"
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateDeveloperDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "descriptionEn": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "descriptionAr": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "website": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "format": "uri"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "slug",
+          "nameEn",
+          "nameAr"
+        ]
+      },
+      "UpdateDeveloperDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "descriptionEn": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "descriptionAr": {
+            "type": "string",
+            "maxLength": 15000
+          },
+          "website": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "format": "uri"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateAmenityDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "slug",
+          "nameEn",
+          "nameAr"
+        ]
+      },
+      "UpdateAmenityDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        }
+      },
+      "CreateAgentProfileDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "bioEn": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "bioAr": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "publicEmail": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\+[1-9]\\d{7,14}$"
+          },
+          "whatsapp": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\+[1-9]\\d{7,14}$"
+          },
+          "reraNumber": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-zA-Z0-9 -]+$"
+          },
+          "languages": {
+            "uniqueItems": true,
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 40,
+              "minLength": 2,
+              "pattern": "^[\\p{L} -]+$"
+            }
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "areaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "photoMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "userId",
+          "slug",
+          "displayName",
+          "languages"
+        ]
+      },
+      "UpdateAgentProfileDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "bioEn": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "bioAr": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "publicEmail": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\+[1-9]\\d{7,14}$"
+          },
+          "whatsapp": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\+[1-9]\\d{7,14}$"
+          },
+          "reraNumber": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-zA-Z0-9 -]+$"
+          },
+          "languages": {
+            "uniqueItems": true,
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 40,
+              "minLength": 2,
+              "pattern": "^[\\p{L} -]+$"
+            }
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "areaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "photoMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        }
+      },
+      "CreateContentDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ARTICLE",
+              "AREA_GUIDE",
+              "MARKET_REPORT",
+              "BUYER_GUIDE",
+              "SERVICE"
+            ]
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "pattern": "^[^<>]*$"
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "pattern": "^[^<>]*$"
+          },
+          "excerptEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 600,
+            "pattern": "^[^<>]*$"
+          },
+          "excerptAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 600,
+            "pattern": "^[^<>]*$"
+          },
+          "bodyEn": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 100000,
+            "pattern": "^[^<>]*$"
+          },
+          "bodyAr": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 100000,
+            "pattern": "^[^<>]*$"
+          },
+          "areaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "coverMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "slug",
+          "type",
+          "titleEn",
+          "titleAr",
+          "excerptEn",
+          "excerptAr",
+          "bodyEn",
+          "bodyAr"
+        ]
+      },
+      "UpdateContentDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "type": {
+            "enum": [
+              "ARTICLE",
+              "AREA_GUIDE",
+              "MARKET_REPORT",
+              "BUYER_GUIDE",
+              "SERVICE"
+            ],
+            "type": "string"
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "pattern": "^[^<>]*$"
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "pattern": "^[^<>]*$"
+          },
+          "excerptEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 600,
+            "pattern": "^[^<>]*$"
+          },
+          "excerptAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 600,
+            "pattern": "^[^<>]*$"
+          },
+          "bodyEn": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 100000,
+            "pattern": "^[^<>]*$"
+          },
+          "bodyAr": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 100000,
+            "pattern": "^[^<>]*$"
+          },
+          "areaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "coverMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "version": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 2147483646
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "ContentTransitionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 2147483646
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "UpdateOwnProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[^<>]*$"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[^<>]*$"
+          }
+        }
+      },
+      "UpdateUserAccessDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "AGENT",
+              "ADMIN"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MediaAttachmentDto": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 29
+          },
+          "altEn": {
+            "type": "object",
+            "default": "",
+            "maxLength": 200
+          },
+          "altAr": {
+            "type": "object",
+            "default": "",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "mediaId",
+          "position"
+        ]
+      },
+      "CreateListingDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "descriptionEn": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "descriptionAr": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "purpose": {
+            "enum": [
+              "SALE",
+              "RENT"
+            ],
+            "type": "string"
+          },
+          "propertyType": {
+            "enum": [
+              "APARTMENT",
+              "VILLA",
+              "TOWNHOUSE",
+              "PENTHOUSE",
+              "DUPLEX",
+              "STUDIO",
+              "OFFICE",
+              "RETAIL",
+              "LAND",
+              "WAREHOUSE"
+            ],
+            "type": "string"
+          },
+          "completion": {
+            "enum": [
+              "READY",
+              "OFF_PLAN"
+            ],
+            "type": "string"
+          },
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "RESERVED",
+              "SOLD",
+              "RENTED"
+            ],
+            "type": "string"
+          },
+          "furnishing": {
+            "enum": [
+              "UNFURNISHED",
+              "SEMI_FURNISHED",
+              "FURNISHED"
+            ],
+            "type": "string"
+          },
+          "priceAed": {
+            "type": "string",
+            "nullable": true,
+            "example": "1500000.00"
+          },
+          "priceOnRequest": {
+            "type": "boolean",
+            "default": false
+          },
+          "previousPriceAed": {
+            "type": "string",
+            "nullable": true
+          },
+          "rentalPeriod": {
+            "nullable": true,
+            "enum": [
+              "YEAR",
+              "MONTH",
+              "WEEK",
+              "DAY"
+            ],
+            "type": "string"
+          },
+          "areaSqm": {
+            "type": "string",
+            "pattern": "^\\d{1,10}(?:\\.\\d{1,2})?$",
+            "example": "125.50"
+          },
+          "plotAreaSqm": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{1,10}(?:\\.\\d{1,2})?$"
+          },
+          "bedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "bathrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "parking": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "addressEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 300
+          },
+          "addressAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 300
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$",
+            "example": "25.204849"
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$",
+            "example": "55.270783"
+          },
+          "vacantOn": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "handoverDate": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "isExclusive": {
+            "type": "boolean"
+          },
+          "permitNumber": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "permitUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 600,
+            "format": "uri",
+            "pattern": "^https:\\/\\/trakheesi\\.dubailand\\.gov\\.ae\\/[^\\s\\\\<>]*$",
+            "description": "Optional supplied DLD permit link; not independently verified by this API."
+          },
+          "areaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "agentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ADMIN only may assign another agent"
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "amenityIds": {
+            "uniqueItems": true,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "media": {
+            "maxItems": 30,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachmentDto"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "titleEn",
+          "titleAr",
+          "descriptionEn",
+          "descriptionAr",
+          "purpose",
+          "propertyType",
+          "completion",
+          "areaSqm",
+          "bedrooms",
+          "bathrooms",
+          "addressEn",
+          "addressAr",
+          "areaId"
+        ]
+      },
+      "UpdateListingDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "descriptionEn": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "descriptionAr": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "purpose": {
+            "enum": [
+              "SALE",
+              "RENT"
+            ],
+            "type": "string"
+          },
+          "propertyType": {
+            "enum": [
+              "APARTMENT",
+              "VILLA",
+              "TOWNHOUSE",
+              "PENTHOUSE",
+              "DUPLEX",
+              "STUDIO",
+              "OFFICE",
+              "RETAIL",
+              "LAND",
+              "WAREHOUSE"
+            ],
+            "type": "string"
+          },
+          "completion": {
+            "enum": [
+              "READY",
+              "OFF_PLAN"
+            ],
+            "type": "string"
+          },
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "RESERVED",
+              "SOLD",
+              "RENTED"
+            ],
+            "type": "string"
+          },
+          "furnishing": {
+            "enum": [
+              "UNFURNISHED",
+              "SEMI_FURNISHED",
+              "FURNISHED"
+            ],
+            "type": "string"
+          },
+          "priceAed": {
+            "type": "string",
+            "nullable": true,
+            "example": "1500000.00"
+          },
+          "priceOnRequest": {
+            "type": "boolean",
+            "default": false
+          },
+          "previousPriceAed": {
+            "type": "string",
+            "nullable": true
+          },
+          "rentalPeriod": {
+            "nullable": true,
+            "enum": [
+              "YEAR",
+              "MONTH",
+              "WEEK",
+              "DAY"
+            ],
+            "type": "string"
+          },
+          "areaSqm": {
+            "type": "string",
+            "pattern": "^\\d{1,10}(?:\\.\\d{1,2})?$",
+            "example": "125.50"
+          },
+          "plotAreaSqm": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{1,10}(?:\\.\\d{1,2})?$"
+          },
+          "bedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "bathrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "parking": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "addressEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 300
+          },
+          "addressAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 300
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$",
+            "example": "25.204849"
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$",
+            "example": "55.270783"
+          },
+          "vacantOn": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "handoverDate": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "isExclusive": {
+            "type": "boolean"
+          },
+          "permitNumber": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "permitUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 600,
+            "format": "uri",
+            "pattern": "^https:\\/\\/trakheesi\\.dubailand\\.gov\\.ae\\/[^\\s\\\\<>]*$",
+            "description": "Optional supplied DLD permit link; not independently verified by this API."
+          },
+          "areaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "agentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ADMIN only may assign another agent"
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "amenityIds": {
+            "uniqueItems": true,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "media": {
+            "maxItems": 30,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachmentDto"
+            }
+          },
+          "version": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Last observed version; stale writes return 409."
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "ListingTransitionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PaymentMilestoneDto": {
+        "type": "object",
+        "properties": {
+          "labelEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "labelAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "percentage": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "labelEn",
+          "labelAr",
+          "percentage"
+        ]
+      },
+      "FloorPlanDto": {
+        "type": "object",
+        "properties": {
+          "nameEn": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "bedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "areaSqm": {
+            "type": "string",
+            "pattern": "^\\d{1,10}(?:\\.\\d{1,2})?$",
+            "example": "150.00"
+          }
+        },
+        "required": [
+          "nameEn",
+          "nameAr",
+          "bedrooms",
+          "areaSqm"
+        ]
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "descriptionEn": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "descriptionAr": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "startingPriceAed": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceOnRequest": {
+            "type": "boolean"
+          },
+          "handoverDate": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "minBedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "maxBedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "propertyTypes": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "enum": [
+                "APARTMENT",
+                "VILLA",
+                "TOWNHOUSE",
+                "PENTHOUSE",
+                "DUPLEX",
+                "STUDIO",
+                "OFFICE",
+                "RETAIL",
+                "LAND",
+                "WAREHOUSE"
+              ]
+            }
+          },
+          "paymentPlan": {
+            "maxItems": 20,
+            "description": "If supplied, the complete payment plan must total exactly 100%.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMilestoneDto"
+            }
+          },
+          "floorPlans": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FloorPlanDto"
+            }
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$"
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$"
+          },
+          "developerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "areaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amenityIds": {
+            "uniqueItems": true,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "media": {
+            "maxItems": 30,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachmentDto"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "nameEn",
+          "nameAr",
+          "descriptionEn",
+          "descriptionAr",
+          "minBedrooms",
+          "maxBedrooms",
+          "propertyTypes",
+          "developerId",
+          "areaId"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 160,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "nameEn": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "nameAr": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "descriptionEn": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "descriptionAr": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20000,
+            "description": "Plain text; clients must not render raw HTML."
+          },
+          "startingPriceAed": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceOnRequest": {
+            "type": "boolean"
+          },
+          "handoverDate": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "minBedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "maxBedrooms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "propertyTypes": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "enum": [
+                "APARTMENT",
+                "VILLA",
+                "TOWNHOUSE",
+                "PENTHOUSE",
+                "DUPLEX",
+                "STUDIO",
+                "OFFICE",
+                "RETAIL",
+                "LAND",
+                "WAREHOUSE"
+              ]
+            }
+          },
+          "paymentPlan": {
+            "maxItems": 20,
+            "description": "If supplied, the complete payment plan must total exactly 100%.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMilestoneDto"
+            }
+          },
+          "floorPlans": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FloorPlanDto"
+            }
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$"
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?\\d{1,3}(?:\\.\\d{1,6})?$"
+          },
+          "developerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "areaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amenityIds": {
+            "uniqueItems": true,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "media": {
+            "maxItems": 30,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachmentDto"
+            }
+          },
+          "version": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "ProjectTransitionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "CreateLeadDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "ENQUIRY",
+              "VIEWING",
+              "VALUATION",
+              "MORTGAGE",
+              "PROJECT"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{6,14}$",
+            "example": "+971501234567"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 3000
+          },
+          "consent": {
+            "type": "boolean"
+          },
+          "listingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preferredAt": {
+            "type": "string",
+            "pattern": "T.*(?:Z|[+-]\\d{2}:\\d{2})$",
+            "example": "2027-01-10T10:00:00Z"
+          }
+        },
+        "required": [
+          "type",
+          "name",
+          "email",
+          "phone",
+          "message",
+          "consent"
+        ]
+      },
+      "UpdateLeadDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "NEW",
+              "CONTACTED",
+              "QUALIFIED",
+              "CLOSED"
+            ],
+            "type": "string"
+          },
+          "internalNotes": {
+            "type": "string",
+            "maxLength": 5000
+          },
+          "assignedToId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Administrators only; null clears assignment"
+          }
+        }
+      },
+      "CreateSavedSearchDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "filters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Only supported public listing query fields; money and area filters use decimal strings"
+          }
+        },
+        "required": [
+          "name",
+          "filters"
+        ]
+      },
+      "UpdateSavedSearchDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "filters": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

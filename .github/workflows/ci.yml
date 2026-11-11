@@ -1,0 +1,89 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [master, main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: estate
+          POSTGRES_PASSWORD: ci-postgres-only
+          POSTGRES_DB: estate_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U estate -d estate_ci"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+      mailpit:
+        image: axllent/mailpit:v1.27
+        ports: ['1025:1025', '8025:8025']
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://estate:ci-postgres-only@127.0.0.1:5432/estate_ci
+      REDIS_URL: redis://127.0.0.1:6379/15
+      CORS_ORIGINS: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
+      SMTP_HOST: 127.0.0.1
+      SMTP_PORT: '1025'
+      SMTP_SECURE: 'false'
+      SMTP_FROM: Real Estate CI <no-reply@example.test>
+      MAILPIT_URL: http://127.0.0.1:8025
+      COOKIE_SECURE: 'false'
+      SWAGGER_ENABLED: 'false'
+      SEED_DEMO: 'false'
+    steps:
+      # Resolved from each official repository's v6 tag with git ls-remote.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Create an ephemeral test signing key
+        run: |
+          node --input-type=module <<'JS'
+          import { randomBytes } from 'node:crypto';
+          import { appendFileSync } from 'node:fs';
+          appendFileSync(process.env.GITHUB_ENV, `JWT_SECRET=${randomBytes(64).toString('hex')}\n`);
+          JS
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+      - name: Apply migrations to the CI database
+        run: npm run db:deploy
+      - name: Lint, typecheck, unit test and build
+        run: npm run check
+      - name: Exercise real PostgreSQL, Redis and SMTP integration
+        run: npm run test:e2e
+      - name: Export the API contract
+        run: npm run openapi:export
+      - name: Build the production image
+        run: docker build --target runtime --tag uae-real-estate-api:ci .

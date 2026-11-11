@@ -1,0 +1,51 @@
+name: uae-real-estate
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: estate
+      POSTGRES_DB: estate
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup:local first}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5433}:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estate -d estate"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?Run npm run setup:local first}", "--appendonly", "yes"]
+    environment: { REDISCLI_AUTH: "${REDIS_PASSWORD}" }
+    ports: ["127.0.0.1:${REDIS_PORT:-6380}:6379"]
+    volumes: ["redis_data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+    restart: unless-stopped
+  api:
+    profiles: ["app"]
+    build: .
+    env_file: apps/api/.env
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://estate:${POSTGRES_PASSWORD}@postgres:5432/estate
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      SMTP_HOST: mailpit
+    ports: ["127.0.0.1:4000:4000"]
+    volumes: ["media_data:/app/apps/api/uploads"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:

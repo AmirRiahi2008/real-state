@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+uploads
+research
+package-lock.json
+docs/openapi.json
