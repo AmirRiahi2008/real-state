@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('the 3D story assembles with scroll and the reading bar reaches the end', async ({ page }) => {
+test('the full-screen construction story builds from zero and reaches completion with scroll', async ({
+  page,
+}) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
@@ -11,7 +13,23 @@ test('the 3D story assembles with scroll and the reading bar reaches the end', a
   await expect(scene.locator('canvas')).toBeVisible({ timeout: 20000 });
   await expect(scene).not.toHaveAttribute('data-webgl-fallback', 'true');
   await expect(scene).toHaveAttribute('data-scene-stage', 'vision');
-  await expect(page.locator('.story-chapter')).toHaveCount(5);
+  await expect(scene).toHaveAttribute('data-build-progress', /^\d+(?:\.\d+)?$/);
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-build-progress')))
+    .toBeLessThan(1);
+  const viewport = page.viewportSize()!;
+  await expect
+    .poll(async () => (await scene.locator('canvas').boundingBox())?.width ?? 0)
+    .toBeGreaterThan(viewport.width * 0.94);
+  await expect
+    .poll(async () => (await scene.locator('canvas').boundingBox())?.height ?? 0)
+    .toBeGreaterThan(viewport.height * 0.8);
+  await expect(page.locator('#story')).toHaveClass(/cinematic-story/);
+  await expect(page.locator('.story-chapter')).toHaveCount(7);
+  expect(
+    await page.locator('#story').evaluate((element) => element.scrollHeight - innerHeight),
+  ).toBeGreaterThanOrEqual(9500);
+  await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '0');
   await page.evaluate(() => {
     const story = document.querySelector('#story')!;
     const top = story.getBoundingClientRect().top + window.scrollY;
@@ -21,15 +39,57 @@ test('the 3D story assembles with scroll and the reading bar reaches the end', a
     });
   });
   await expect(scene).toHaveAttribute('data-scene-stage', 'structure');
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-build-progress')))
+    .toBeGreaterThan(45);
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-build-progress')))
+    .toBeLessThan(60);
+  await page.evaluate(() => {
+    const story = document.querySelector('#story')!;
+    window.scrollTo({
+      top:
+        story.getBoundingClientRect().top +
+        window.scrollY +
+        (story.scrollHeight - window.innerHeight) * 0.86,
+      behavior: 'instant',
+    });
+  });
+  await expect(scene).toHaveAttribute('data-scene-stage', 'living');
+  await expect(page.locator('.cinematic-caption h2')).toContainText('Then, a belonging.');
+  await expect
+    .poll(() =>
+      page.locator('.cinematic-caption h2').evaluate((element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const bounds = range.getBoundingClientRect();
+        return bounds.left >= 0 && bounds.right <= window.innerWidth;
+      }),
+    )
+    .toBe(true);
   await page.evaluate(() => {
     const story = document.querySelector('#story')!;
     const top = story.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({
-      top: top + (story.scrollHeight - window.innerHeight) * 0.93,
+      top: top + (story.scrollHeight - window.innerHeight) * 0.95,
       behavior: 'instant',
     });
   });
   await expect(scene).toHaveAttribute('data-scene-stage', 'investment');
+  await page.evaluate(() => {
+    const story = document.querySelector('#story')!;
+    window.scrollTo({
+      top: story.getBoundingClientRect().top + scrollY + story.scrollHeight - innerHeight,
+      behavior: 'instant',
+    });
+  });
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-build-progress')))
+    .toBeGreaterThan(99);
+  await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '100');
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
   await page.evaluate(() =>
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
   );
@@ -140,6 +200,8 @@ test('Arabic mobile pages and reduced-motion story remain usable', async ({ brow
     reducedMotion: 'reduce',
   });
   const page = await context.newPage();
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
   try {
     await page.goto('/ar');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
@@ -147,9 +209,16 @@ test('Arabic mobile pages and reduced-motion story remain usable', async ({ brow
       'data-scene-stage',
       'complete',
     );
+    await expect(page.locator('#story')).toHaveClass(/cinematic-reduced/);
+    await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '100');
+    await expect(page.locator('.story-chapter').first()).toBeVisible();
+    expect(await page.locator('#story').evaluate((element) => element.scrollHeight)).toBeLessThan(
+      5000,
+    );
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth))
       .toBeLessThanOrEqual(1);
+    expect(errors).toEqual([]);
     await page.goto('/ar/properties');
     await expect(page.locator('.catalog-property-card').first()).toBeVisible();
     await expect
