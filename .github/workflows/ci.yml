@@ -47,6 +47,7 @@ jobs:
       REDIS_URL: redis://127.0.0.1:6379/15
       CORS_ORIGINS: http://localhost:3000
       FRONTEND_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SMTP_HOST: 127.0.0.1
       SMTP_PORT: '1025'
       SMTP_SECURE: 'false'
@@ -69,7 +70,9 @@ jobs:
           node --input-type=module <<'JS'
           import { randomBytes } from 'node:crypto';
           import { appendFileSync } from 'node:fs';
-          appendFileSync(process.env.GITHUB_ENV, `JWT_SECRET=${randomBytes(64).toString('hex')}\n`);
+          const signingKey = randomBytes(64).toString('hex');
+          process.stdout.write(`::add-mask::${signingKey}\n`);
+          appendFileSync(process.env.GITHUB_ENV, `JWT_SECRET=${signingKey}\n`);
           JS
       - name: Install locked dependencies
         run: npm ci

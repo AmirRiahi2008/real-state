@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const externalBase = process.env.PLAYWRIGHT_BASE_URL;
+const localBase = 'http://localhost:3000';
 const channel = process.env.PLAYWRIGHT_CHANNEL ?? (process.env.CI ? 'chromium' : 'chrome');
 export default defineConfig({
   testDir: './test',
@@ -12,7 +13,7 @@ export default defineConfig({
   reporter: [['list']],
   outputDir: '../../.artifacts/web-tests',
   use: {
-    baseURL: externalBase || 'http://127.0.0.1:3000',
+    baseURL: externalBase || localBase,
     ...devices['Desktop Chrome'],
     viewport: { width: 1440, height: 1000 },
     channel: channel === 'chromium' ? undefined : channel,
@@ -25,7 +26,7 @@ export default defineConfig({
     : {
         command: process.env.CI ? 'npm run start' : 'npm run dev',
         env: { NODE_ENV: process.env.CI ? 'production' : 'development' },
-        url: 'http://127.0.0.1:3000/en',
+        url: `${localBase}/en`,
         reuseExistingServer: !process.env.CI,
         timeout: 90000,
       },
