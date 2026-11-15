@@ -2,12 +2,16 @@ import Link from 'next/link';
 import { ArrowUpRight, Compass, Handshake, MessageCircle } from 'lucide-react';
 import LeadForm from '@/components/lead-form';
 import type { Locale } from '@/lib/api';
+import { getSiteContent } from '@/lib/server-api';
+import { siteText } from '@/lib/site-content';
 import '../properties/properties.css';
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'ar' ? 'ar' : 'en';
   const ar = locale === 'ar';
+  const { values } = await getSiteContent();
+  const text = (key: string, fallback: string) => siteText(values, key, locale, fallback);
   const points = ar
     ? [
         [
@@ -40,29 +44,29 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       <section className="container catalog-contact-layout">
         <div className="catalog-contact-copy">
           <p className="eyebrow">
-            {ar ? 'الأماكن العظيمة تبدأ بالناس' : 'GREAT PLACES START WITH PEOPLE'}
+            {text(
+              'contact.eyebrow',
+              ar ? 'الأماكن العظيمة تبدأ بالناس' : 'GREAT PLACES START WITH PEOPLE',
+            )}
           </p>
           <h1>
-            {ar ? (
+            {text('contact.title1', ar ? 'لديك فكرة؟' : 'Big plans?')}
+            <br />
+            <span>{text('contact.title2', ar ? 'لنتحدث عنها.' : 'Small question?')}</span>
+            {text('contact.title3', ar ? '' : 'We’re here.') ? (
               <>
-                لديك فكرة؟
                 <br />
-                <span>لنتحدث عنها.</span>
+                {text('contact.title3', ar ? '' : 'We’re here.')}
               </>
-            ) : (
-              <>
-                Big plans?
-                <br />
-                <span>Small question?</span>
-                <br />
-                We’re here.
-              </>
-            )}
+            ) : null}
           </h1>
           <p>
-            {ar
-              ? 'كل خطوة جديدة تبدأ بحديث. أخبرنا عن خططك وسنساعدك في استكشاف ما يمكن أن يأتي بعدها.'
-              : 'Every next chapter starts with a conversation. Tell us a little about your plans, and we’ll help you explore what could come next.'}
+            {text(
+              'contact.description',
+              ar
+                ? 'كل خطوة جديدة تبدأ بحديث. أخبرنا عن خططك وسنساعدك في استكشاف ما يمكن أن يأتي بعدها.'
+                : 'Every next chapter starts with a conversation. Tell us a little about your plans, and we’ll help you explore what could come next.',
+            )}
           </p>
           <ul className="catalog-contact-points">
             {points.map(([title, description], index) => {

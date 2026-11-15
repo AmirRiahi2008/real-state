@@ -14,11 +14,13 @@ FROM base AS dependencies
 COPY package.json package-lock.json .npmrc ./
 COPY apps/api/package.json ./apps/api/package.json
 COPY apps/web/package.json ./apps/web/package.json
+COPY packages/rich-content/package.json ./packages/rich-content/package.json
 RUN npm ci --workspace=@real-estate/api --include-workspace-root=false --include=dev
 
 # This target retains Prisma CLI and tsx for a separate migration/admin job.
 FROM dependencies AS build
 COPY apps/api ./apps/api
+COPY packages/rich-content ./packages/rich-content
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npm run db:generate \
     && npm run build -w @real-estate/api
 
@@ -36,6 +38,7 @@ ENV NODE_ENV=production \
 COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/package.json ./package.json
 COPY --from=build --chown=node:node /app/apps/api/package.json ./apps/api/package.json
+COPY --from=build --chown=node:node /app/packages/rich-content ./packages/rich-content
 COPY --from=build --chown=node:node /app/apps/api/dist ./apps/api/dist
 COPY --from=build --chown=node:node /app/apps/api/demo-assets ./apps/api/demo-assets
 COPY --chown=node:node scripts/start-replit.mjs ./scripts/start-replit.mjs

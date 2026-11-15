@@ -1,0 +1,1749 @@
+.team-page {
+  padding-block: 80px 65px;
+}
+.team-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 80px;
+  align-items: center;
+  padding-block: 35px 95px;
+}
+.team-hero-copy h1,
+.team-login-story h1 {
+  font-size: clamp(50px, 6vw, 88px);
+  line-height: 1.04;
+  letter-spacing: -0.065em;
+  margin: 23px 0 25px;
+}
+.team-hero-copy h1 em,
+.team-login-story h1 em {
+  color: #819d77;
+  line-height: 1.15;
+}
+.team-hero-copy > p:not(.eyebrow),
+.team-login-story > p:not(.eyebrow) {
+  color: var(--muted);
+  max-width: 490px;
+  font-size: 14px;
+  line-height: 1.95;
+}
+.team-inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  border: 0;
+  background: none;
+  padding: 9px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-align: start;
+}
+.team-inline-link:hover {
+  color: var(--accent-strong);
+}
+.team-inline-link svg {
+  transition: transform 0.2s;
+}
+.team-inline-link:hover svg {
+  transform: translate(2px, -2px);
+}
+.team-hero-copy > .team-inline-link {
+  margin-top: 23px;
+}
+.team-hero-mark {
+  height: 360px;
+  position: relative;
+  border-radius: 48% 48% 30px 30px;
+  background: var(--lavender);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.team-mark-letter {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-style: italic;
+  font-size: 184px;
+  letter-spacing: -0.12em;
+  color: #655779;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+.team-mark-letter > span {
+  font-size: 0.8em;
+  color: #8a7c9d;
+  position: relative;
+  left: -5px;
+  top: 25px;
+}
+.team-mark-orbit {
+  position: absolute;
+  width: 290px;
+  height: 290px;
+  border: 1px solid #9483ab50;
+  border-radius: 50%;
+  transform: rotate(-30deg) scaleX(0.6);
+}
+.team-mark-orbit:after {
+  content: '';
+  position: absolute;
+  inset: -25px;
+  border: 1px solid #9483ab36;
+  border-radius: 50%;
+}
+.team-hero-mark > p {
+  font-size: 7px;
+  letter-spacing: 0.11em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 34px;
+  color: #645876;
+  position: relative;
+  z-index: 1;
+}
+.team-directory {
+  scroll-margin-top: 120px;
+}
+.team-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 50px;
+  margin-bottom: 35px;
+}
+.team-section-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+.team-section-heading h2 {
+  font-size: 52px;
+  margin-top: 12px;
+}
+.team-section-heading > p {
+  max-width: 320px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.team-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 25px;
+  align-items: stretch;
+}
+.team-card-grid > div {
+  min-width: 0;
+  height: 100%;
+}
+.team-person-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--surface);
+  height: 100%;
+}
+.team-person-photo {
+  position: relative;
+  overflow: hidden;
+  background: var(--mint);
+}
+.team-person-1 .team-person-photo {
+  background: var(--peach);
+}
+.team-person-2 .team-person-photo {
+  background: var(--lavender);
+}
+.team-portrait {
+  display: block;
+  aspect-ratio: 4/4.6;
+  width: 100%;
+  overflow: hidden;
+}
+.team-portrait > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.team-person-card:hover .team-portrait > img {
+  transform: scale(1.035);
+}
+.team-avatar-initial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+  background: var(--mint);
+  color: var(--accent-strong);
+}
+.team-portrait .team-avatar-initial {
+  font-family: 'DM Serif Display', serif;
+  font-size: 105px;
+  color: #63765b;
+}
+.team-person-index {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 8px;
+  color: #fff;
+  letter-spacing: 0.15em;
+  z-index: 1;
+  text-shadow: 0 1px 10px #0008;
+}
+.team-photo-contact {
+  position: absolute;
+  bottom: 19px;
+  right: 19px;
+  width: 49px;
+  height: 49px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f6f5f0ed;
+  color: #263d2c;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+.team-photo-contact:hover {
+  background: #c5edb5;
+  transform: rotate(6deg);
+}
+.team-person-copy {
+  padding: 25px 25px 22px;
+}
+.team-person-title {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.team-person-copy h3 {
+  font-size: 27px;
+  letter-spacing: -0.045em;
+  margin-top: 9px;
+  margin-bottom: 13px;
+}
+.team-person-bio {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: 66px;
+}
+.team-person-copy .team-inline-link {
+  margin-top: 15px;
+  font-size: 11px;
+}
+.team-card-skeleton {
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  padding-bottom: 25px;
+}
+.team-card-skeleton > span {
+  display: block;
+  aspect-ratio: 4/4.6;
+  background: linear-gradient(90deg, var(--mint), var(--bg), var(--mint));
+  background-size: 200% 100%;
+  animation: team-shimmer 2s linear infinite;
+}
+.team-card-skeleton i {
+  display: block;
+  margin: 22px 25px 0;
+  height: 14px;
+  background: var(--line);
+  border-radius: 4px;
+  width: 65%;
+}
+.team-card-skeleton i:last-child {
+  width: 43%;
+  height: 10px;
+  margin-top: 13px;
+}
+.team-conversation-note {
+  margin-top: 75px;
+  border-top: 1px solid var(--line);
+  padding-top: 40px;
+  display: flex;
+  align-items: start;
+  gap: 25px;
+}
+.team-conversation-note > svg {
+  margin-top: 6px;
+  color: #829574;
+}
+.team-conversation-note h2 {
+  font-size: 27px;
+  letter-spacing: -0.035em;
+}
+.team-conversation-note p {
+  max-width: 650px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.team-conversation-note > .team-inline-link {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+.team-empty-state {
+  padding: 60px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 17px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+}
+.team-empty-state h3 {
+  font-size: 24px;
+  color: var(--ink);
+}
+.team-empty-state p {
+  font-size: 13px;
+  line-height: 1.85;
+  max-width: 420px;
+}
+.team-empty-state > svg {
+  color: #899d7b;
+}
+.team-chat-dialog {
+  margin: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  max-height: 92svh;
+  width: min(560px, calc(100% - 36px));
+  max-width: none;
+  overflow: visible;
+}
+.team-chat-dialog::backdrop {
+  background: #111f1a7a;
+  backdrop-filter: blur(8px);
+}
+body:has(.team-chat-dialog[open]) {
+  overflow: hidden;
+}
+.team-chat-sheet {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  max-height: 92svh;
+  box-shadow: 0 30px 120px #14211b40;
+  overflow: hidden;
+}
+.team-chat-header {
+  padding: 24px 25px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.team-chat-header h2 {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+  margin-top: 3px;
+}
+.team-chat-header .team-section-label {
+  font-size: 8px;
+}
+.team-avatar {
+  display: block;
+  height: 54px;
+  width: 54px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-size: 17px;
+}
+.team-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.team-round-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--ink);
+}
+.team-chat-header .team-round-button {
+  margin-inline-start: auto;
+}
+.team-new-conversation {
+  padding: 25px;
+  overflow-y: auto;
+}
+.team-chat-intro {
+  margin-bottom: 25px;
+}
+.team-chat-icon,
+.team-card-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: var(--mint);
+  border-radius: 15px;
+  color: var(--accent-strong);
+  flex-shrink: 0;
+}
+.team-chat-intro h3 {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  margin-top: 20px;
+}
+.team-chat-intro p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.85;
+  margin-top: 12px;
+}
+.team-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.team-field input,
+.team-field textarea {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 13px 15px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.team-field input {
+  min-height: 48px;
+}
+.team-field textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.team-field input:focus,
+.team-field textarea:focus {
+  border-color: #7e9e77;
+  box-shadow: 0 0 0 3px #95b98120;
+}
+.team-field input::placeholder,
+.team-field textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+.team-field input[type='file'] {
+  padding: 10px;
+  font-size: 11px;
+}
+.team-field input[type='file']::file-selector-button {
+  border: 0;
+  border-radius: 6px;
+  background: var(--mint);
+  color: var(--ink);
+  padding: 7px 10px;
+  margin-inline-end: 10px;
+  font: inherit;
+}
+.team-consent {
+  display: flex;
+  gap: 11px;
+  align-items: start;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 2px 0 23px;
+}
+.team-consent input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: #4f7451;
+  margin-top: 3px;
+}
+.team-full-button {
+  width: 100%;
+}
+.team-private-copy {
+  font-size: 9px;
+  line-height: 1.8;
+  color: var(--muted);
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  text-align: center;
+}
+.team-private-copy svg {
+  flex-shrink: 0;
+}
+.team-form-error,
+.team-inline-error {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #a54f45;
+  background: #d8876314;
+  border: 1px solid #d8876330;
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 18px;
+}
+.team-inline-error {
+  margin: 14px 25px;
+}
+.team-loading-copy {
+  padding: 40px 25px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+}
+.team-chat-status {
+  padding: 15px 25px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.team-chat-status > svg {
+  margin-inline-start: auto;
+}
+.team-message-list {
+  min-height: 200px;
+  max-height: 430px;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: auto;
+}
+.team-message {
+  max-width: 87%;
+  padding: 14px 17px;
+  border-radius: 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  align-self: flex-start;
+  min-width: 100px;
+}
+.team-message.is-own {
+  align-self: flex-end;
+  background: var(--mint);
+  border-color: transparent;
+  border-end-end-radius: 3px;
+}
+.team-message.is-received {
+  border-end-start-radius: 3px;
+}
+.team-message-byline {
+  font-size: 9px;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.team-message-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.85;
+}
+.team-message-time {
+  display: flex;
+  gap: 8px;
+  justify-content: end;
+  align-items: center;
+  font-size: 8px;
+  color: var(--muted);
+  margin-top: 9px;
+  line-height: 1.8;
+}
+.team-message-composer {
+  padding: 20px 25px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+  background: var(--bg);
+}
+.team-message-composer .team-field {
+  margin-bottom: 12px;
+}
+.team-message-composer textarea {
+  min-height: 80px;
+  max-height: 160px;
+}
+.team-composer-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+}
+.team-composer-footer > p {
+  font-size: 9px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.team-composer-footer .button {
+  font-size: 11px;
+  min-height: 44px;
+  padding: 12px 20px;
+  gap: 15px;
+}
+.team-older-button {
+  display: block;
+  margin: 12px auto 0;
+  background: none;
+  border: 0;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 10px;
+  min-height: 36px;
+  flex-shrink: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.team-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  clip-path: inset(50%) !important;
+}
+.team-login-page {
+  padding-block: 80px 90px;
+}
+.team-login-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 95px;
+  align-items: center;
+}
+.team-login-story .eyebrow {
+  margin-top: 45px;
+}
+.team-login-story > .team-inline-link {
+  font-size: 11px;
+}
+.team-login-story > p:not(.eyebrow) {
+  max-width: 390px;
+}
+.team-login-art {
+  height: 200px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-top: 45px;
+  color: #74946b;
+  max-width: 360px;
+}
+.team-login-art span {
+  position: absolute;
+  width: 175px;
+  height: 175px;
+  border: 1px solid var(--line);
+  border-radius: 35px;
+  transform: rotate(25deg);
+}
+.team-login-art span:nth-child(2) {
+  transform: rotate(-15deg);
+  background: var(--mint);
+  border: 0;
+}
+.team-login-art span:nth-child(3) {
+  transform: rotate(50deg);
+}
+.team-login-art > svg {
+  position: relative;
+  z-index: 1;
+}
+.team-login-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  padding: 40px;
+}
+.team-login-card > .team-section-label {
+  margin-top: 23px;
+}
+.team-login-card h2 {
+  font-size: 39px;
+  letter-spacing: -0.05em;
+  margin-top: 9px;
+}
+.team-login-card > p:not(.team-section-label):not(.team-private-copy) {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 13px 0 28px;
+}
+.team-password-input {
+  position: relative;
+  display: block;
+}
+.team-password-input input {
+  padding-inline-end: 55px;
+}
+.team-password-input > button {
+  position: absolute;
+  inset-inline-end: 5px;
+  top: 4px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  display: grid;
+  place-items: center;
+  background: none;
+  color: var(--muted);
+}
+.team-login-card .team-private-copy {
+  margin-top: 23px;
+}
+.team-dashboard-page {
+  padding-block: 70px 80px;
+}
+.team-dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+.team-dashboard-heading h1 {
+  font-size: 58px;
+  letter-spacing: -0.06em;
+  margin: 15px 0 17px;
+}
+.team-dashboard-heading h1 em {
+  color: #819d77;
+}
+.team-dashboard-heading > div > p:not(.eyebrow) {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.85;
+}
+.team-dashboard-loading {
+  min-height: 65svh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.team-dashboard-loading > p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.team-spinner {
+  display: block;
+  height: 30px;
+  width: 30px;
+  border: 2px solid var(--line);
+  border-top-color: #819d77;
+  border-radius: 50%;
+  animation: team-spin 1s linear infinite;
+}
+.team-workspace {
+  display: grid;
+  grid-template-columns: 245px minmax(0, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 23px;
+  overflow: hidden;
+  min-height: 650px;
+}
+.team-workspace-sidebar {
+  border-inline-end: 1px solid var(--line);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+}
+.team-workspace-identity {
+  text-align: center;
+  padding: 4px 7px 27px;
+  border-bottom: 1px solid var(--line);
+}
+.team-workspace-identity .team-avatar {
+  height: 78px;
+  width: 78px;
+  margin: 0 auto 18px;
+  font-size: 24px;
+}
+.team-workspace-identity h2 {
+  font-size: 23px;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+.team-workspace-identity > p {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 9px;
+  overflow-wrap: anywhere;
+}
+.team-workspace-identity > span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 13px;
+  overflow-wrap: anywhere;
+}
+.team-workspace-sidebar > nav {
+  padding-top: 23px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.team-workspace-sidebar nav > button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 13px;
+  border: 0;
+  border-radius: 11px;
+  text-align: start;
+  font-size: 11px;
+  background: none;
+  color: var(--muted);
+}
+.team-workspace-sidebar nav > button.is-active {
+  background: var(--mint);
+  color: var(--ink);
+}
+.team-workspace-sidebar nav > button > span {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background: #84a17a;
+  margin-inline-start: auto;
+}
+.team-workspace-access {
+  display: flex;
+  gap: 9px;
+  padding: 25px 9px 20px;
+  color: var(--muted);
+  margin-top: auto;
+}
+.team-workspace-access > p {
+  font-size: 9px;
+  line-height: 1.9;
+}
+.team-logout-button {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  background: none;
+  border: 0;
+  padding: 13px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: start;
+}
+.team-workspace-main {
+  min-width: 0;
+}
+.team-editor-section,
+.team-inbox-section {
+  padding: 35px;
+}
+.team-panel-heading {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.team-panel-heading h2 {
+  font-size: 31px;
+  letter-spacing: -0.045em;
+  margin-top: 5px;
+}
+.team-panel-heading .team-round-button {
+  margin-inline-start: auto;
+}
+.team-panel-intro {
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 610px;
+  margin-bottom: 30px;
+}
+.team-photo-editor {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 25px 0;
+  border-block: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+.team-photo-editor .team-avatar {
+  height: 105px;
+  width: 105px;
+  font-size: 34px;
+}
+.team-photo-editor > div {
+  min-width: 0;
+  flex: 1;
+}
+.team-photo-editor .team-field {
+  margin-bottom: 8px;
+}
+.team-photo-editor > div > p {
+  font-size: 10px;
+  color: var(--muted);
+}
+.team-photo-editor .team-inline-link {
+  margin-top: 6px;
+  font-size: 11px;
+}
+.team-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.team-editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 12px;
+}
+.team-save-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--accent-strong);
+  line-height: 1.8;
+}
+.team-security-section {
+  max-width: 650px;
+}
+.team-password-form {
+  margin-top: 35px;
+}
+.team-password-form > .button {
+  margin-top: 8px;
+}
+.team-inbox-list {
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  overflow: hidden;
+}
+.team-inbox-row {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 20px;
+  width: 100%;
+  background: none;
+  color: var(--ink);
+  border: 0;
+  text-align: start;
+}
+.team-inbox-row + .team-inbox-row {
+  border-top: 1px solid var(--line);
+}
+.team-inbox-row:hover {
+  background: var(--bg);
+}
+.team-visitor-avatar {
+  height: 43px;
+  width: 43px;
+  background: var(--lavender);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.team-inbox-preview {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+.team-inbox-preview > strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.team-inbox-preview > span {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team-inbox-preview > small {
+  font-size: 9px;
+  color: var(--muted);
+}
+.team-inbox-date {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 10px;
+  font-size: 9px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.team-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin-top: 25px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.team-pagination button {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11px;
+}
+.team-inbox-thread {
+  height: 100%;
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+}
+.team-thread-back {
+  margin: 23px 30px 0;
+  align-self: flex-start;
+}
+.team-thread-heading {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 23px 30px 26px;
+  border-bottom: 1px solid var(--line);
+}
+.team-thread-heading h3 {
+  font-size: 26px;
+  margin-top: 8px;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+.team-thread-heading p:not(.team-section-label) {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+.team-private-mark {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  background: var(--mint);
+  font-size: 9px;
+  padding: 9px 12px;
+  border-radius: 30px;
+  flex-shrink: 0;
+}
+.team-inbox-thread .team-message-list {
+  max-height: 520px;
+  min-height: 300px;
+  padding: 30px;
+}
+.team-inbox-thread .team-message-composer {
+  margin-top: auto;
+  padding: 25px 30px;
+}
+html[lang='ar'] .team-section-label,
+html[lang='ar'] .team-person-title,
+html[lang='ar'] .team-hero-mark > p {
+  letter-spacing: 0;
+}
+html[lang='ar'] .team-hero-copy h1,
+html[lang='ar'] .team-login-story h1 {
+  font-size: clamp(43px, 5.3vw, 72px);
+  line-height: 1.5;
+  letter-spacing: -0.04em;
+}
+html[lang='ar'] .team-hero-copy > p:not(.eyebrow),
+html[lang='ar'] .team-login-story > p:not(.eyebrow) {
+  line-height: 2;
+}
+html[lang='ar'] .team-person-index {
+  right: 20px;
+  left: auto;
+}
+html[lang='ar'] .team-photo-contact {
+  right: auto;
+  left: 19px;
+}
+html[lang='ar'] .team-inline-link svg,
+html[lang='ar'] .team-photo-contact svg {
+  transform: scaleX(-1);
+}
+html[lang='ar'] .team-field {
+  line-height: 1.9;
+}
+html[lang='ar'] .team-panel-heading h2 {
+  font-size: 29px;
+}
+:root[data-theme='dark'] .team-hero-copy h1 em,
+:root[data-theme='dark'] .team-login-story h1 em,
+:root[data-theme='dark'] .team-dashboard-heading h1 em {
+  color: #bed6ad;
+}
+:root[data-theme='dark'] .team-hero-mark {
+  background: #453b52;
+}
+:root[data-theme='dark'] .team-mark-letter {
+  color: #d6c4e6;
+}
+:root[data-theme='dark'] .team-mark-letter > span {
+  color: #bfaace;
+}
+:root[data-theme='dark'] .team-hero-mark > p {
+  color: #cfbadf;
+}
+:root[data-theme='dark'] .team-form-error,
+:root[data-theme='dark'] .team-inline-error {
+  color: #e6afa0;
+}
+@keyframes team-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes team-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (max-width: 1100px) {
+  .team-hero {
+    gap: 45px;
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+  .team-hero-mark {
+    height: 300px;
+  }
+  .team-mark-letter {
+    font-size: 150px;
+  }
+  .team-hero-mark > p {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+  .team-card-grid {
+    gap: 18px;
+  }
+  .team-person-copy {
+    padding: 21px;
+  }
+  .team-person-copy h3 {
+    font-size: 24px;
+  }
+  .team-login-layout {
+    gap: 45px;
+  }
+  .team-login-card {
+    padding: 32px;
+  }
+  .team-workspace {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .team-workspace-sidebar {
+    padding: 25px 14px;
+  }
+  .team-editor-section,
+  .team-inbox-section {
+    padding: 28px;
+  }
+  .team-field-grid {
+    gap: 18px;
+  }
+}
+@media (max-width: 800px) {
+  .team-page {
+    padding-top: 45px;
+  }
+  .team-hero {
+    gap: 30px;
+    padding-block: 15px 65px;
+  }
+  .team-hero-copy h1 {
+    font-size: 54px;
+  }
+  .team-hero-copy > p:not(.eyebrow) {
+    font-size: 12px;
+  }
+  .team-hero-mark {
+    height: 255px;
+  }
+  .team-mark-letter {
+    font-size: 130px;
+  }
+  .team-hero-mark > p {
+    max-width: 170px;
+    text-align: center;
+    line-height: 1.8;
+  }
+  .team-mark-orbit {
+    width: 220px;
+    height: 220px;
+  }
+  .team-section-heading {
+    gap: 25px;
+  }
+  .team-section-heading h2 {
+    font-size: 43px;
+  }
+  .team-section-heading > p {
+    max-width: 280px;
+    font-size: 11px;
+  }
+  .team-card-grid {
+    gap: 14px;
+  }
+  .team-person-copy {
+    padding: 18px;
+  }
+  .team-person-copy h3 {
+    font-size: 21px;
+  }
+  .team-person-bio {
+    font-size: 11px;
+    min-height: 85px;
+  }
+  .team-photo-contact {
+    height: 41px;
+    width: 41px;
+    bottom: 13px;
+    right: 13px;
+  }
+  .team-person-index {
+    font-size: 7px;
+    left: 14px;
+    top: 15px;
+  }
+  .team-conversation-note {
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .team-conversation-note > div {
+    flex: 1;
+  }
+  .team-conversation-note > .team-inline-link {
+    margin-inline-start: 42px;
+  }
+  .team-login-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  .team-login-story h1 {
+    font-size: 52px;
+  }
+  .team-login-card {
+    padding: 25px;
+  }
+  .team-login-card h2 {
+    font-size: 33px;
+  }
+  .team-dashboard-page {
+    padding-top: 45px;
+  }
+  .team-dashboard-heading h1 {
+    font-size: 48px;
+  }
+  .team-dashboard-heading {
+    gap: 25px;
+  }
+  .team-workspace {
+    grid-template-columns: 1fr;
+  }
+  .team-workspace-sidebar {
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px 20px;
+  }
+  .team-workspace-identity {
+    padding: 0;
+    border: 0;
+    display: flex;
+    gap: 13px;
+    align-items: center;
+    text-align: start;
+    grid-column: 1;
+    flex-wrap: wrap;
+  }
+  .team-workspace-identity .team-avatar {
+    width: 48px;
+    height: 48px;
+    margin: 0;
+  }
+  .team-workspace-identity h2 {
+    font-size: 22px;
+  }
+  .team-workspace-identity > p {
+    margin: 0;
+  }
+  .team-workspace-identity > span {
+    display: none;
+  }
+  .team-workspace-sidebar nav {
+    padding: 0;
+    grid-column: 1/-1;
+    grid-row: 2;
+    flex-direction: row;
+    gap: 10px;
+  }
+  .team-workspace-sidebar nav > button {
+    flex: 1;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .team-workspace-sidebar nav > button > span {
+    display: none;
+  }
+  .team-workspace-access {
+    display: none;
+  }
+  .team-logout-button {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    white-space: nowrap;
+  }
+  .team-workspace-main {
+    min-height: 500px;
+  }
+  .team-inbox-thread {
+    min-height: 600px;
+  }
+}
+@media (max-width: 600px) {
+  .team-page {
+    padding-block: 30px 45px;
+  }
+  .team-hero {
+    display: block;
+    padding-block: 15px 50px;
+  }
+  .team-hero-copy h1 {
+    font-size: 54px;
+    margin-top: 19px;
+  }
+  .team-hero-copy > p:not(.eyebrow) {
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .team-hero-copy > .team-inline-link {
+    margin-top: 18px;
+  }
+  .team-hero-mark {
+    height: 210px;
+    margin-top: 30px;
+    border-radius: 100px 100px 20px 20px;
+  }
+  .team-mark-letter {
+    font-size: 115px;
+  }
+  .team-mark-letter > span {
+    top: 17px;
+  }
+  .team-hero-mark > p {
+    max-width: none;
+    font-size: 6px;
+    margin-top: 22px;
+  }
+  .team-mark-orbit {
+    height: 175px;
+    width: 175px;
+  }
+  .team-section-heading {
+    display: block;
+    margin-bottom: 25px;
+  }
+  .team-section-heading h2 {
+    font-size: 41px;
+  }
+  .team-section-heading > p {
+    max-width: none;
+    margin-top: 18px;
+    font-size: 12px;
+  }
+  .team-card-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .team-portrait {
+    aspect-ratio: 4/4.3;
+  }
+  .team-person-copy {
+    padding: 25px;
+  }
+  .team-person-copy h3 {
+    font-size: 29px;
+  }
+  .team-person-bio {
+    font-size: 12px;
+    min-height: 0;
+  }
+  .team-person-copy .team-inline-link {
+    font-size: 12px;
+    margin-top: 18px;
+  }
+  .team-photo-contact {
+    height: 48px;
+    width: 48px;
+    bottom: 19px;
+    right: 19px;
+  }
+  .team-person-index {
+    font-size: 8px;
+    left: 20px;
+    top: 20px;
+  }
+  .team-conversation-note {
+    margin-top: 45px;
+    padding-top: 28px;
+    gap: 15px;
+  }
+  .team-conversation-note h2 {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+  .team-conversation-note > div {
+    min-width: 0;
+  }
+  .team-conversation-note > .team-inline-link {
+    margin-inline-start: 39px;
+  }
+  .team-chat-dialog {
+    width: calc(100% - 20px);
+    max-height: 96svh;
+  }
+  .team-chat-sheet {
+    max-height: 96svh;
+    border-radius: 20px;
+  }
+  .team-chat-header {
+    padding: 20px;
+    gap: 12px;
+  }
+  .team-chat-header .team-avatar {
+    height: 44px;
+    width: 44px;
+  }
+  .team-chat-header h2 {
+    font-size: 21px;
+  }
+  .team-chat-header .team-round-button {
+    height: 37px;
+    width: 37px;
+  }
+  .team-chat-header .team-section-label {
+    font-size: 7px;
+  }
+  .team-new-conversation {
+    padding: 20px;
+  }
+  .team-chat-intro {
+    margin-bottom: 20px;
+  }
+  .team-chat-intro h3 {
+    font-size: 27px;
+  }
+  .team-field input,
+  .team-field textarea {
+    font-size: 16px;
+  }
+  .team-private-copy {
+    font-size: 8px;
+  }
+  .team-chat-status {
+    padding: 13px 20px;
+    font-size: 9px;
+  }
+  .team-message-list {
+    padding: 20px;
+    max-height: 42svh;
+    min-height: 180px;
+  }
+  .team-message {
+    max-width: 92%;
+    padding: 12px 14px;
+  }
+  .team-message-body {
+    font-size: 13px;
+  }
+  .team-message-composer {
+    padding: 17px 20px;
+  }
+  .team-message-composer textarea {
+    font-size: 14px;
+    min-height: 72px;
+  }
+  .team-composer-footer > p {
+    font-size: 8px;
+    max-width: 145px;
+  }
+  .team-login-page {
+    padding-block: 30px 50px;
+  }
+  .team-login-layout {
+    display: block;
+  }
+  .team-login-story .eyebrow {
+    margin-top: 25px;
+  }
+  .team-login-story h1 {
+    font-size: 53px;
+  }
+  .team-login-story > p:not(.eyebrow) {
+    font-size: 13px;
+  }
+  .team-login-art {
+    display: none;
+  }
+  .team-login-card {
+    padding: 28px 23px;
+    margin-top: 35px;
+  }
+  .team-login-card h2 {
+    font-size: 36px;
+  }
+  .team-login-card > .team-section-label {
+    margin-top: 20px;
+  }
+  .team-login-card .team-private-copy {
+    font-size: 9px;
+  }
+  .team-dashboard-page {
+    padding-block: 32px 45px;
+  }
+  .team-dashboard-heading {
+    display: block;
+    margin-bottom: 25px;
+  }
+  .team-dashboard-heading h1 {
+    font-size: 42px;
+    margin-top: 13px;
+  }
+  .team-dashboard-heading > .team-inline-link {
+    margin-top: 12px;
+    font-size: 11px;
+  }
+  .team-dashboard-heading > div > p:not(.eyebrow) {
+    font-size: 12px;
+  }
+  .team-workspace {
+    border-radius: 17px;
+  }
+  .team-workspace-sidebar {
+    padding: 20px 15px;
+    gap: 18px 10px;
+  }
+  .team-workspace-identity {
+    gap: 10px;
+  }
+  .team-workspace-identity h2 {
+    font-size: 18px;
+    max-width: 125px;
+  }
+  .team-workspace-identity > p {
+    display: none;
+  }
+  .team-workspace-identity .team-avatar {
+    width: 39px;
+    height: 39px;
+  }
+  .team-logout-button {
+    font-size: 0;
+    padding: 10px;
+  }
+  .team-logout-button svg {
+    width: 19px;
+    height: 19px;
+  }
+  .team-workspace-sidebar nav {
+    gap: 7px;
+  }
+  .team-workspace-sidebar nav > button {
+    font-size: 9px;
+    padding: 12px 7px;
+    gap: 7px;
+  }
+  .team-workspace-sidebar nav > button svg {
+    height: 15px;
+    width: 15px;
+  }
+  .team-editor-section,
+  .team-inbox-section {
+    padding: 23px 18px;
+  }
+  .team-panel-heading {
+    gap: 12px;
+  }
+  .team-panel-heading .team-card-icon {
+    height: 42px;
+    width: 42px;
+    border-radius: 12px;
+  }
+  .team-panel-heading .team-section-label {
+    font-size: 7px;
+  }
+  .team-panel-heading h2 {
+    font-size: 26px;
+  }
+  .team-panel-heading .team-round-button {
+    height: 35px;
+    width: 35px;
+  }
+  .team-panel-intro {
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .team-photo-editor {
+    align-items: start;
+    gap: 15px;
+  }
+  .team-photo-editor .team-avatar {
+    height: 66px;
+    width: 66px;
+    font-size: 22px;
+  }
+  .team-field-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .team-editor-footer {
+    align-items: start;
+    flex-direction: column;
+  }
+  .team-editor-footer .button {
+    width: 100%;
+  }
+  .team-security-section .team-panel-heading h2 {
+    font-size: 25px;
+  }
+  .team-security-section .team-password-form > .button {
+    width: 100%;
+  }
+  .team-inbox-row {
+    padding: 17px 12px;
+    gap: 11px;
+  }
+  .team-visitor-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 19px;
+  }
+  .team-inbox-preview > strong {
+    font-size: 12px;
+  }
+  .team-inbox-preview > span {
+    font-size: 11px;
+  }
+  .team-inbox-preview > small {
+    font-size: 8px;
+  }
+  .team-inbox-date {
+    font-size: 8px;
+  }
+  .team-thread-back {
+    margin: 20px 20px 0;
+    font-size: 11px;
+  }
+  .team-thread-heading {
+    padding: 22px 20px;
+    gap: 13px;
+  }
+  .team-thread-heading h3 {
+    font-size: 23px;
+  }
+  .team-private-mark {
+    font-size: 8px;
+    padding: 8px 9px;
+  }
+  .team-inbox-thread .team-message-list {
+    padding: 20px;
+    max-height: 470px;
+  }
+  .team-inbox-thread .team-message-composer {
+    padding: 20px;
+  }
+  html[lang='ar'] .team-hero-copy h1,
+  html[lang='ar'] .team-login-story h1 {
+    font-size: 42px;
+    line-height: 1.55;
+  }
+  html[lang='ar'] .team-workspace-sidebar nav > button {
+    font-size: 10px;
+  }
+  html[lang='ar'] .team-panel-heading h2 {
+    font-size: 25px;
+  }
+  html[lang='ar'] .team-dashboard-heading h1 {
+    font-size: 37px;
+    line-height: 1.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .team-card-skeleton > span,
+  .team-spinner {
+    animation: none;
+  }
+  .team-person-card .team-portrait > img,
+  .team-inline-link svg {
+    transition: none;
+  }
+}

@@ -1,5 +1,7 @@
-import { getListings, getProjects, getAreas } from '@/lib/server-api';
+import { getListings, getProjects, getAreas, getSiteContent } from '@/lib/server-api';
 import Link from 'next/link';
+import { siteText } from '@/lib/site-content';
+import InsightsPreview from '@/components/insights-preview';
 import { Suspense } from 'react';
 import {
   ArrowUpRight,
@@ -7,7 +9,6 @@ import {
   Compass,
   Heart,
   ScanLine,
-  Sparkles,
   ArrowDownRight,
   Layers3,
 } from 'lucide-react';
@@ -16,6 +17,16 @@ import PropertyCard from '@/components/property-card';
 import Reveal from '@/components/reveal';
 import Faq from '@/components/faq';
 import { localized, formatMoney, mediaUrl, type Locale } from '@/lib/api';
+
+const emirateNames: Record<string, [string, string]> = {
+  DUBAI: ['DUBAI', 'دبي'],
+  ABU_DHABI: ['ABU DHABI', 'أبوظبي'],
+  SHARJAH: ['SHARJAH', 'الشارقة'],
+  AJMAN: ['AJMAN', 'عجمان'],
+  RAS_AL_KHAIMAH: ['RAS AL KHAIMAH', 'رأس الخيمة'],
+  FUJAIRAH: ['FUJAIRAH', 'الفجيرة'],
+  UMM_AL_QUWAIN: ['UMM AL QUWAIN', 'أم القيوين'],
+};
 
 export const dynamic = 'force-dynamic';
 export default async function Home({ params }: { params: Promise<{ locale: Locale }> }) {
@@ -42,6 +53,8 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
 }
 async function HomeSections({ locale }: { locale: Locale }) {
   const ar = locale === 'ar';
+  const { values } = await getSiteContent();
+  const text = (key: string, fallback: string) => siteText(values, key, locale, fallback);
   const [listingsResult, projectsResult, areasResult] = await Promise.allSettled([
     getListings({ limit: '3' }),
     getProjects({ limit: '3' }),
@@ -49,19 +62,13 @@ async function HomeSections({ locale }: { locale: Locale }) {
   ]);
   const listings = listingsResult.status === 'fulfilled' ? listingsResult.value.data : [];
   const projects = projectsResult.status === 'fulfilled' ? projectsResult.value.data : [];
-  const areas =
-    areasResult.status === 'fulfilled'
-      ? areasResult.value.data.filter((area) => area.slug.startsWith('oriva-')).slice(0, 3)
-      : [];
+  const areas = areasResult.status === 'fulfilled' ? areasResult.value.data.slice(0, 3) : [];
   return (
     <>
       <div className="values-ribbon" aria-hidden="true">
         <span>{ar ? 'أماكن تحمل معنى' : 'PLACES WITH PURPOSE'}</span>
-        <Sparkles />
         <span>{ar ? 'مساحات لها روح' : 'SPACES WITH SOUL'}</span>
-        <Sparkles />
         <span>{ar ? 'رؤية أوسع للغد' : 'A DIFFERENT TOMORROW'}</span>
-        <Sparkles />
       </div>
 
       <section className="section featured-section container" id="discover">
@@ -70,29 +77,25 @@ async function HomeSections({ locale }: { locale: Locale }) {
             <div>
               <p className="eyebrow">
                 <span className="status-dot" />
-                {ar ? 'مجموعة مختارة بعناية' : 'A CONSIDERED COLLECTION'}
+                {text(
+                  'home.featuredEyebrow',
+                  ar ? 'مجموعة مختارة بعناية' : 'A CONSIDERED COLLECTION',
+                )}
               </p>
               <h2>
-                {ar ? (
-                  <>
-                    أكثر من عنوان.
-                    <br />
-                    <em>منظور للحياة.</em>
-                  </>
-                ) : (
-                  <>
-                    More than an address.
-                    <br />
-                    <em>A point of view.</em>
-                  </>
-                )}
+                {text('home.featuredTitle1', ar ? 'أكثر من عنوان.' : 'More than an address.')}
+                <br />
+                <em>{text('home.featuredTitle2', ar ? 'منظور للحياة.' : 'A point of view.')}</em>
               </h2>
             </div>
             <div className="section-heading-aside">
               <p>
-                {ar
-                  ? 'مساحات مختلفة لطموحات مختلفة. ابحث عن المكان الذي يشبه خطوتك القادمة.'
-                  : 'Different spaces. Different ambitions. Find the place that feels like your next move.'}
+                {text(
+                  'home.featuredDescription',
+                  ar
+                    ? 'مساحات مختلفة لطموحات مختلفة. ابحث عن المكان الذي يشبه خطوتك القادمة.'
+                    : 'Different spaces. Different ambitions. Find the place that feels like your next move.',
+                )}
               </p>
               <Link href={`/${locale}/properties`} className="text-link">
                 {ar ? 'جميع العقارات' : 'Explore all properties'}
@@ -173,7 +176,6 @@ async function HomeSections({ locale }: { locale: Locale }) {
             />
             <div className="image-orbit-sticker">
               <span>{ar ? 'صُمّمت للحياة' : 'MADE FOR LIVING'}</span>
-              <Sparkles size={30} />
               <span>{ar ? 'مع مساحة للأحلام' : 'WITH ROOM TO DREAM'}</span>
             </div>
             <div className="photo-caption">
@@ -183,26 +185,24 @@ async function HomeSections({ locale }: { locale: Locale }) {
           </Reveal>
           <div className="perspective-copy">
             <Reveal>
-              <p className="eyebrow">{ar ? 'ما نراه، مختلف' : 'A DIFFERENT WAY OF SEEING'}</p>
-              <h2>
-                {ar ? (
-                  <>
-                    عقارات.
-                    <br />
-                    <em>بلمسة إنسانية.</em>
-                  </>
-                ) : (
-                  <>
-                    Real estate.
-                    <br />
-                    <em>More human.</em>
-                  </>
+              <p className="eyebrow">
+                {text(
+                  'home.perspectiveEyebrow',
+                  ar ? 'ما نراه، مختلف' : 'A DIFFERENT WAY OF SEEING',
                 )}
+              </p>
+              <h2>
+                {text('home.perspectiveTitle1', ar ? 'عقارات.' : 'Real estate.')}
+                <br />
+                <em>{text('home.perspectiveTitle2', ar ? 'بلمسة إنسانية.' : 'More human.')}</em>
               </h2>
               <p className="section-description">
-                {ar
-                  ? 'نرى وراء الأمتار المربعة. في إيقاع الحي، ودفء المواد، والشعور الذي يستقبلك عند الدخول.'
-                  : 'We look beyond the square metres. To the rhythm of a neighbourhood. The warmth of a material. The feeling you get when you walk through the door.'}
+                {text(
+                  'home.perspectiveDescription',
+                  ar
+                    ? 'نرى وراء الأمتار المربعة. في إيقاع الحي، ودفء المواد، والشعور الذي يستقبلك عند الدخول.'
+                    : 'We look beyond the square metres. To the rhythm of a neighbourhood. The warmth of a material. The feeling you get when you walk through the door.',
+                )}
               </p>
             </Reveal>
             {[
@@ -260,22 +260,12 @@ async function HomeSections({ locale }: { locale: Locale }) {
             <div>
               <p className="eyebrow">
                 <span className="status-dot lavender-dot" />
-                {ar ? 'القادم إلى الأفق' : 'NEXT ON THE HORIZON'}
+                {text('home.projectsEyebrow', ar ? 'القادم إلى الأفق' : 'NEXT ON THE HORIZON')}
               </p>
               <h2>
-                {ar ? (
-                  <>
-                    رؤية اليوم.
-                    <br />
-                    <em>عنوان الغد.</em>
-                  </>
-                ) : (
-                  <>
-                    Today’s vision.
-                    <br />
-                    <em>Tomorrow’s address.</em>
-                  </>
-                )}
+                {text('home.projectsTitle1', ar ? 'رؤية اليوم.' : 'Today’s vision.')}
+                <br />
+                <em>{text('home.projectsTitle2', ar ? 'عنوان الغد.' : 'Tomorrow’s address.')}</em>
               </h2>
             </div>
             <Link className="button button-outline" href={`/${locale}/projects`}>
@@ -335,27 +325,22 @@ async function HomeSections({ locale }: { locale: Locale }) {
           <Reveal>
             <div className="section-heading">
               <div>
-                <p className="eyebrow">{ar ? 'ابحث عن إيقاعك' : 'FIND YOUR RHYTHM'}</p>
+                <p className="eyebrow">
+                  {text('home.areasEyebrow', ar ? 'ابحث عن إيقاعك' : 'FIND YOUR RHYTHM')}
+                </p>
                 <h2>
-                  {ar ? (
-                    <>
-                      ليس مجرد مكان.
-                      <br />
-                      <em>طريقة للحياة.</em>
-                    </>
-                  ) : (
-                    <>
-                      Not just where.
-                      <br />
-                      <em>How you live.</em>
-                    </>
-                  )}
+                  {text('home.areasTitle1', ar ? 'ليس مجرد مكان.' : 'Not just where.')}
+                  <br />
+                  <em>{text('home.areasTitle2', ar ? 'طريقة للحياة.' : 'How you live.')}</em>
                 </h2>
               </div>
               <p className="section-heading-aside">
-                {ar
-                  ? 'صباح على الواجهة المائية، أو هدوء حديقة، أو طاقة المدينة. أي إيقاع يشبهك؟'
-                  : 'Waterfront mornings. Garden-side quiet. The energy of a city. Where do you feel most like you?'}
+                {text(
+                  'home.areasDescription',
+                  ar
+                    ? 'صباح على الواجهة المائية، أو هدوء حديقة، أو طاقة المدينة. أي إيقاع يشبهك؟'
+                    : 'Waterfront mornings. Garden-side quiet. The energy of a city. Where do you feel most like you?',
+                )}
               </p>
             </div>
           </Reveal>
@@ -373,13 +358,8 @@ async function HomeSections({ locale }: { locale: Locale }) {
                   />
                   <div className="neighbourhood-overlay">
                     <span>
-                      {area.emirate === 'DUBAI'
-                        ? ar
-                          ? 'دبي'
-                          : 'DUBAI'
-                        : ar
-                          ? 'أبوظبي'
-                          : 'ABU DHABI'}
+                      {emirateNames[area.emirate]?.[ar ? 1 : 0] ??
+                        area.emirate.replaceAll('_', ' ')}
                     </span>
                     <div>
                       <h3>{localized(area, 'name', locale)}</h3>
@@ -400,27 +380,23 @@ async function HomeSections({ locale }: { locale: Locale }) {
           <Reveal className="investment-copy">
             <p className="eyebrow">
               <span className="status-dot" />
-              {ar ? 'استثمر برؤية أوضح' : 'A CLEARER VIEW OF YOUR FUTURE'}
+              {text(
+                'home.investEyebrow',
+                ar ? 'استثمر برؤية أوضح' : 'A CLEARER VIEW OF YOUR FUTURE',
+              )}
             </p>
             <h2>
-              {ar ? (
-                <>
-                  أحلام كبيرة.
-                  <br />
-                  <em>تفكير مدروس.</em>
-                </>
-              ) : (
-                <>
-                  Big dreams.
-                  <br />
-                  <em>Clear thinking.</em>
-                </>
-              )}
+              {text('home.investTitle1', ar ? 'أحلام كبيرة.' : 'Big dreams.')}
+              <br />
+              <em>{text('home.investTitle2', ar ? 'تفكير مدروس.' : 'Clear thinking.')}</em>
             </h2>
             <p>
-              {ar
-                ? 'قبل اتخاذ الخطوة، افهم الصورة. استكشف تقديرات التمويل وعائد الإيجار وحدد الأسئلة التي تستحق أن تطرحها.'
-                : 'Before the next move, see the bigger picture. Explore mortgage estimates, understand rental yield, and put your possibilities into perspective.'}
+              {text(
+                'home.investDescription',
+                ar
+                  ? 'قبل اتخاذ الخطوة، افهم الصورة. استكشف تقديرات التمويل وعائد الإيجار وحدد الأسئلة التي تستحق أن تطرحها.'
+                  : 'Before the next move, see the bigger picture. Explore mortgage estimates, understand rental yield, and put your possibilities into perspective.',
+              )}
             </p>
             <Link href={`/${locale}/invest`} className="button button-primary">
               {ar ? 'استكشف الأرقام' : 'Make room for possibility'}
@@ -453,30 +429,22 @@ async function HomeSections({ locale }: { locale: Locale }) {
                 PERSPECTIVE
               </span>
             </div>
-            <span className="art-spark">✳</span>
           </div>
         </div>
       </section>
 
+      <InsightsPreview locale={locale} />
       <section className="section faq-section container">
         <Reveal>
           <div className="section-heading">
             <div>
-              <p className="eyebrow">{ar ? 'لنوضح الصورة' : 'LET’S MAKE THINGS CLEAR'}</p>
+              <p className="eyebrow">
+                {text('home.faqEyebrow', ar ? 'لنوضح الصورة' : 'LET’S MAKE THINGS CLEAR')}
+              </p>
               <h2>
-                {ar ? (
-                  <>
-                    أسئلة جيدة.
-                    <br />
-                    <em>خطوات أوضح.</em>
-                  </>
-                ) : (
-                  <>
-                    Good questions.
-                    <br />
-                    <em>A clearer next step.</em>
-                  </>
-                )}
+                {text('home.faqTitle1', ar ? 'أسئلة جيدة.' : 'Good questions.')}
+                <br />
+                <em>{text('home.faqTitle2', ar ? 'خطوات أوضح.' : 'A clearer next step.')}</em>
               </h2>
             </div>
             <Link href={`/${locale}/contact`} className="text-link">
@@ -489,27 +457,17 @@ async function HomeSections({ locale }: { locale: Locale }) {
       </section>
       <section className="closing-section">
         <div className="container">
-          <span className="closing-spark" aria-hidden="true">
-            ✳
-          </span>
           <Reveal>
             <p className="eyebrow">
-              {ar ? 'كل حكاية تحتاج إلى بداية' : 'EVERY STORY NEEDS A STARTING POINT'}
+              {text(
+                'home.ctaEyebrow',
+                ar ? 'كل حكاية تحتاج إلى بداية' : 'EVERY STORY NEEDS A STARTING POINT',
+              )}
             </p>
             <h2>
-              {ar ? (
-                <>
-                  لنجد مكانك
-                  <br />
-                  <em>في الحكاية.</em>
-                </>
-              ) : (
-                <>
-                  Let’s find your
-                  <br />
-                  <em>place in the story.</em>
-                </>
-              )}
+              {text('home.ctaTitle1', ar ? 'لنجد مكانك' : 'Let’s find your')}
+              <br />
+              <em>{text('home.ctaTitle2', ar ? 'في الحكاية.' : 'place in the story.')}</em>
             </h2>
             <Link className="button button-dark" href={`/${locale}/properties`}>
               {ar ? 'فصلك التالي يبدأ هنا' : 'Your next chapter starts here'}

@@ -13,6 +13,7 @@ import {
   Ruler,
 } from 'lucide-react';
 import LeadForm from '@/components/lead-form';
+import RichContentRenderer from '@/components/rich-content';
 import { propertyTypeLabel, publicImageUrl } from '../property-utils';
 import { formatMoney, localized, type Locale } from '@/lib/api';
 import '../properties.css';
@@ -162,13 +163,12 @@ export default async function PropertyDetailPage({
             <section className="catalog-detail-section">
               <p className="eyebrow">{ar ? 'تخيل حياتك هنا' : 'PICTURE LIFE HERE'}</p>
               <h2>{ar ? 'أكثر من مجرد عنوان.' : 'More than an address.'}</h2>
-              <div className="catalog-description">
-                {localized(listing, 'description', locale)
-                  .split(/\n\s*\n/)
-                  .map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-              </div>
+              <RichContentRenderer
+                className="catalog-description"
+                locale={locale}
+                document={ar ? listing.descriptionRichAr : listing.descriptionRichEn}
+                plainText={localized(listing, 'description', locale)}
+              />
             </section>
             <section className="catalog-detail-section">
               <h2>{ar ? 'التفاصيل الصغيرة تصنع الفارق.' : 'It’s the little things.'}</h2>

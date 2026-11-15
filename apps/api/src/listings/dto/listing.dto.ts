@@ -1,3 +1,4 @@
+import type { RichDocument } from '@oriva/rich-content';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -8,6 +9,7 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  IsObject,
   IsString,
   IsUUID,
   IsUrl,
@@ -72,19 +74,29 @@ export class CreateListingDto {
   @Matches(plainText)
   titleAr: string;
   @ApiProperty({ description: 'Plain text; clients must not render raw HTML.' })
+  @ValidateIf(
+    (object: CreateListingDto) =>
+      object.descriptionRichEn === undefined || object.descriptionRichEn === null,
+  )
   @Transform(trim)
   @IsString()
   @MinLength(20)
   @MaxLength(20000)
   @Matches(plainText)
   descriptionEn: string;
+  @IsOptional() @IsObject() descriptionRichEn?: RichDocument | null;
   @ApiProperty({ description: 'Plain text; clients must not render raw HTML.' })
+  @ValidateIf(
+    (object: CreateListingDto) =>
+      object.descriptionRichAr === undefined || object.descriptionRichAr === null,
+  )
   @Transform(trim)
   @IsString()
   @MinLength(20)
   @MaxLength(20000)
   @Matches(plainText)
   descriptionAr: string;
+  @IsOptional() @IsObject() descriptionRichAr?: RichDocument | null;
   @ApiProperty({ enum: ListingPurpose }) @IsEnum(ListingPurpose) purpose: ListingPurpose;
   @ApiProperty({ enum: PropertyType }) @IsEnum(PropertyType) propertyType: PropertyType;
   @ApiProperty({ enum: CompletionStatus }) @IsEnum(CompletionStatus) completion: CompletionStatus;

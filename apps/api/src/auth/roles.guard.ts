@@ -35,7 +35,9 @@ export class RolesGuard implements CanActivate {
     if (roles?.length && !roles.includes(request.user.role))
       throw new ForbiddenException('Insufficient permissions');
     if (
-      roles?.some((role) => role === Role.AGENT || role === Role.ADMIN) &&
+      roles?.some(
+        (role) => role === Role.AGENT || role === Role.ADMIN || role === Role.TEAM_MEMBER,
+      ) &&
       request.user.role !== Role.CUSTOMER &&
       !['GET', 'HEAD', 'OPTIONS'].includes(request.method)
     ) {

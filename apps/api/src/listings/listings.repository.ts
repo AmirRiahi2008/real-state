@@ -105,7 +105,7 @@ export type ManagedListingRecord = Prisma.ListingGetPayload<{
   include: { media: true; amenities: true };
 }>;
 
-export function presentListing(row: PublicListingRecord) {
+export function presentListing<T extends PublicListingRecord>(row: T) {
   const { agent, media, amenities, ...listing } = row;
   return {
     ...listing,
@@ -215,7 +215,7 @@ export class ListingsRepository {
   publicOne(slug: string) {
     return this.prisma.listing.findFirst({
       where: { AND: [publicListingWhere, { slug }] },
-      select: publicListingSelect,
+      select: { ...publicListingSelect, descriptionRichEn: true, descriptionRichAr: true },
     });
   }
   async managedPage(actorId: string, isAdmin: boolean, page: number, limit: number) {

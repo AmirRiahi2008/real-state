@@ -8,6 +8,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowDown, ArrowUpRight, ChevronsDown, Pause } from 'lucide-react';
 import type { Locale } from '@/lib/api';
+import { useSiteText } from './site-content-provider';
+import { CONSTRUCTION_PHASES } from './scene/construction-timeline';
+import { burjStoryCopy } from './scene/burj-story-copy';
 import './scroll-story.css';
 
 const BuildingScene = dynamic(() => import('./building-scene'), {
@@ -19,127 +22,13 @@ const BuildingScene = dynamic(() => import('./building-scene'), {
     </div>
   ),
 });
-const chapters = [
-  {
-    threshold: 0,
-    align: 'left',
-    accent: 'mint',
-    en: [
-      'THE FIRST SPARK',
-      'A single idea.',
-      'A whole new world.',
-      'Before the skyline, a person imagines more. Follow a first ambition as it becomes a place to call your own.',
-    ],
-    ar: [
-      'الشرارة الأولى',
-      'فكرة واحدة.',
-      'وعالمٌ جديد.',
-      'قبل أن يرتفع الأفق، يتخيّل إنسانٌ ما هو أبعد. تابع الطموح الأول وهو يتحوّل إلى مكان تنتمي إليه.',
-    ],
-  },
-  {
-    threshold: 0.12,
-    align: 'left',
-    accent: 'sand',
-    en: [
-      '01 / THE GROUNDWORK',
-      'Big dreams.',
-      'Solid foundations.',
-      'The ground is prepared. Reinforcement finds its place. Every meaningful beginning needs something strong beneath it.',
-    ],
-    ar: [
-      '٠١ / الأساسات',
-      'أحلام كبيرة.',
-      'وأساسات راسخة.',
-      'تُجهّز الأرض ويأخذ الحديد مكانه. كل بداية تستحق أن تحملها قاعدة متينة.',
-    ],
-  },
-  {
-    threshold: 0.28,
-    align: 'right',
-    accent: 'peach',
-    en: [
-      '02 / THE STRUCTURE',
-      'Strength,',
-      'taking shape.',
-      'Columns rise. Beams connect. The quiet precision of a team turns a drawing into something you can stand beneath.',
-    ],
-    ar: [
-      '٠٢ / الهيكل',
-      'القوة،',
-      'تأخذ شكلها.',
-      'ترتفع الأعمدة وتتصل الجسور. بدقّة فريق متكامل، يتحوّل الرسم إلى بناء حقيقي.',
-    ],
-  },
-  {
-    threshold: 0.47,
-    align: 'left',
-    accent: 'lavender',
-    en: [
-      '03 / FLOOR BY FLOOR',
-      'One layer.',
-      'More possibility.',
-      'A crane lifts. A floor settles. The next one follows. With each level, a little more room for the life ahead.',
-    ],
-    ar: [
-      '٠٣ / طابق بعد طابق',
-      'طبقة جديدة.',
-      'وإمكانات أوسع.',
-      'ترفع الرافعة، ويستقر طابق، ثم يأتي الذي يليه. مع كل مستوى، تتّسع مساحة الحياة القادمة.',
-    ],
-  },
-  {
-    threshold: 0.63,
-    align: 'left',
-    accent: 'blue',
-    en: [
-      '04 / THE FINISHING TOUCHES',
-      'Let the light',
-      'find its way.',
-      'Glass meets stone. Balconies open to the air. Small, considered details give the structure its own character.',
-    ],
-    ar: [
-      '٠٤ / اللمسات الأخيرة',
-      'دع الضوء',
-      'يجد طريقه.',
-      'يلتقي الزجاج بالحجر، وتنفتح الشرفات على الهواء. تمنح التفاصيل المدروسة المبنى شخصيته.',
-    ],
-  },
-  {
-    threshold: 0.79,
-    align: 'right',
-    accent: 'mint',
-    en: [
-      '05 / A LIFE WITHIN',
-      'A building.',
-      'Then, a belonging.',
-      'The cranes step back. Gardens grow. Warm windows and familiar faces bring the architecture to life.',
-    ],
-    ar: [
-      '٠٥ / الحياة في الداخل',
-      'كان مبنى.',
-      'فأصبح انتماءً.',
-      'تتراجع الرافعات وتكتمل الحدائق. نوافذ دافئة ووجوه مألوفة تمنح العمارة روحها.',
-    ],
-  },
-  {
-    threshold: 0.92,
-    align: 'left',
-    accent: 'peach',
-    en: [
-      '06 / YOUR NEXT CHAPTER',
-      'A place to live.',
-      'A future to shape.',
-      'From the first idea to the final key. Explore a home to belong to, and an investment to understand. Your next chapter starts here.',
-    ],
-    ar: [
-      '٠٦ / فصلك التالي',
-      'مكان للحياة.',
-      'ومستقبل تصنعه.',
-      'من أول فكرة إلى آخر مفتاح. اكتشف منزلاً تنتمي إليه واستثماراً تفهمه. فصلك التالي يبدأ هنا.',
-    ],
-  },
-] as const;
+const chapterCopy = burjStoryCopy;
+
+const chapters = CONSTRUCTION_PHASES.map((phase, index) => ({
+  ...phase,
+  threshold: phase.start,
+  ...chapterCopy[index],
+}));
 
 export default function ScrollStory({ locale }: { locale: Locale }) {
   const root = useRef<HTMLElement>(null);
@@ -151,6 +40,7 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
   const [reduced, setReduced] = useState(false);
   useEffect(() => setReduced(Boolean(deviceReducedMotion)), [deviceReducedMotion]);
   const ar = locale === 'ar';
+  const text = useSiteText(locale);
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     if (reduced) {
@@ -190,24 +80,30 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
     };
   }, [reduced]);
   const active = chapters[chapter] ?? chapters[0];
-  const [label, firstLine, secondLine, description] = ar ? active.ar : active.en;
+  const originalCopy = ar ? active.ar : active.en;
+  const [label, firstLine, secondLine, description] = [
+    'label',
+    'title1',
+    'title2',
+    'description',
+  ].map((key, index) => text(`story.${chapter}.${key}`, originalCopy[index]));
   return (
     <section
       id="story"
       ref={root}
       className={`cinematic-story${reduced ? ' cinematic-reduced' : ''}`}
       data-story-progress={percent}
-      data-target-scroll-seconds="30"
+      data-target-scroll-seconds="60"
       aria-label={
         ar
-          ? 'من الفكرة إلى الحياة — حكاية بناء ثلاثية الأبعاد'
-          : 'From a first idea to a place of your own — a construction story'
+          ? 'حكاية بناء برج خليفة ثلاثية الأبعاد'
+          : 'Burj Khalifa — an immersive construction story'
       }
     >
       <h1 className="cinematic-sr-only">
         {ar
-          ? 'أوريفا — من أول فكرة إلى مكان تنتمي إليه'
-          : 'ORIVA — From a single idea to a place to belong'}
+          ? 'أوريفا — برج خليفة، حكاية تُبنى مع التمرير'
+          : 'ORIVA — Burj Khalifa, built with your scroll'}
       </h1>
       <div className="cinematic-viewport">
         <div className="cinematic-atmosphere" aria-hidden="true">
@@ -224,9 +120,9 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
         <div className="cinematic-topline">
           <span>
             <i />
-            {ar ? 'منظور جديد للحياة' : 'A NEW PERSPECTIVE ON LIVING'}
+            {ar ? 'برج خليفة / من الأرض إلى السماء' : 'BURJ KHALIFA / FROM GROUND TO SKY'}
           </span>
-          <span className="cinematic-edition">ORIVA · UAE</span>
+          <span className="cinematic-edition">DUBAI · 828 M</span>
         </div>
         <div
           className="cinematic-caption-position"
@@ -237,7 +133,7 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`${locale}-${chapter}`}
-              className={`cinematic-caption cinematic-accent-${active.accent}`}
+              className={`cinematic-caption cinematic-accent-${active.accent}${!ar && Math.max(firstLine.length, secondLine.length) >= 19 ? ' cinematic-caption-compact' : ''}`}
               initial={reduced ? false : { opacity: 0, y: 28, filter: 'blur(8px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={reduced ? undefined : { opacity: 0, y: -22, filter: 'blur(7px)' }}
@@ -258,7 +154,11 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
                   <span>
                     <ArrowDown size={17} />
                   </span>
-                  <p>{ar ? 'مرّر لتبني الحكاية.' : 'Scroll. Watch possibility become a place.'}</p>
+                  <p>
+                    {ar
+                      ? 'حكاية بدقيقة تقريباً. أنت تتحكّم بإيقاعها.'
+                      : 'A story in about a minute. Your scroll sets the pace.'}
+                  </p>
                 </div>
               ) : null}
               {chapter === chapters.length - 1 ? (
@@ -279,7 +179,7 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
         <div className="cinematic-stage-index" aria-hidden="true">
           <span>{String(chapter + 1).padStart(2, '0')}</span>
           <i />
-          07
+          {String(chapters.length).padStart(2, '0')}
         </div>
         <div className="cinematic-bottomline">
           <div className="cinematic-build-status">
@@ -289,11 +189,7 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
             </span>
             <div>
               <span>{ar ? 'حلمٌ قيد البناء' : 'A VISION IN THE MAKING'}</span>
-              <p>
-                {ar
-                  ? 'تصوّر معماري · ليس عقاراً معروضاً للبيع'
-                  : 'An architectural concept. A world of possibility.'}
-              </p>
+              <p>{ar ? 'حكاية معمارية لبرج خليفة' : 'An architectural tribute to Burj Khalifa.'}</p>
             </div>
           </div>
           <div
@@ -310,9 +206,9 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
               <span style={{ transform: `scaleX(${percent / 100})` }} />
             </div>
             <ol aria-hidden="true">
-              {['01', '02', '03', '04', '05', '06', '07'].map((step, index) => (
-                <li key={step} className={chapter >= index ? 'is-built' : ''}>
-                  {step}
+              {chapters.map((item, index) => (
+                <li key={item.id} className={chapter >= index ? 'is-built' : ''}>
+                  {String(index + 1).padStart(2, '0')}
                 </li>
               ))}
             </ol>
@@ -331,7 +227,10 @@ export default function ScrollStory({ locale }: { locale: Locale }) {
       </div>
       <div className={reduced ? 'cinematic-reduced-chapters container' : 'cinematic-sr-only'}>
         {chapters.map((item, index) => {
-          const copy = ar ? item.ar : item.en;
+          const original = ar ? item.ar : item.en;
+          const copy = ['label', 'title1', 'title2', 'description'].map((key, position) =>
+            text(`story.${index}.${key}`, original[position]),
+          );
           return (
             <article className="story-chapter" id={`chapter-${index + 1}`} key={copy[0]}>
               <p>{copy[0]}</p>

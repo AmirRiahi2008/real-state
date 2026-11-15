@@ -20,6 +20,9 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { CalculatorsModule } from './calculators/calculators.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
+import { TeamModule } from './team/team.module';
+import { AdminModule } from './admin/admin.module';
+import { SiteContentModule } from './site-content/site-content.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +46,9 @@ import { MediaModule } from './media/media.module';
     CalculatorsModule,
     HealthModule,
     MediaModule,
+    TeamModule,
+    SiteContentModule,
+    AdminModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: RateLimitGuard },

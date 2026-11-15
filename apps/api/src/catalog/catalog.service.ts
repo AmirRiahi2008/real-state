@@ -203,7 +203,9 @@ export class CatalogService {
       !(await db.media.findFirst({
         where: {
           id: dto.photoMediaId,
-          ...(!existingPhoto ? { ownerId: { in: [actor.id, userId] } } : {}),
+          ...(!existingPhoto && actor.role !== Role.ADMIN
+            ? { ownerId: { in: [actor.id, userId] } }
+            : {}),
         },
         select: { id: true },
       }))

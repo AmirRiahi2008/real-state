@@ -24,6 +24,11 @@ import {
   validateSearchRanges,
 } from './listing.policy';
 import { ListingsRepository, ManagedListingRecord, presentListing } from './listings.repository';
+import {
+  prepareRichContent,
+  assertRichMedia,
+  replaceRichMedia,
+} from '../rich-content/rich-content.policy';
 
 const defined = <T extends object>(value: T): Partial<T> =>
   Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as Partial<T>;
@@ -76,6 +81,10 @@ export class ListingsService {
   }
   async create(dto: CreateListingDto, actor: AuthUser) {
     validateListingInputNulls(dto);
+    const rich = prepareRichContent(dto, undefined, 'description', {
+      minTextLength: 20,
+      maxTextLength: 20000,
+    });
     const agentId = dto.agentId ?? actor.id;
     assertListingOwner(agentId, actor);
     validateMediaAttachments(dto.media ?? []);
@@ -99,15 +108,17 @@ export class ListingsService {
         actor,
         false,
       );
+      await assertRichMedia(tx, rich.mediaIds, actor);
       const row = await tx.listing.create({
         data: {
           reference: `UAE-${randomUUID().replaceAll('-', '').slice(0, 16).toUpperCase()}`,
           ...this.scalars(dto),
+          ...rich.data,
           slug: dto.slug,
           titleEn: dto.titleEn,
           titleAr: dto.titleAr,
-          descriptionEn: dto.descriptionEn,
-          descriptionAr: dto.descriptionAr,
+          descriptionEn: rich.textEn,
+          descriptionAr: rich.textAr,
           purpose: dto.purpose,
           propertyType: dto.propertyType,
           completion: dto.completion,
@@ -123,6 +134,8 @@ export class ListingsService {
           amenities: { create: (dto.amenityIds ?? []).map((amenityId) => ({ amenityId })) },
         },
       });
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(tx, 'listing', row.id, rich.mediaIds);
       await this.audit.record(actor.id, 'listing.created', 'Listing', row.id, {}, tx);
       return row;
     });
@@ -136,6 +149,11 @@ export class ListingsService {
         throw new BadRequestException('Archived listings cannot be edited');
       if (dto.agentId !== undefined) assertListingOwner(dto.agentId, actor);
       validateListingFacts({ ...row, ...defined(dto) });
+      const rich = prepareRichContent(dto, row, 'description', {
+        minTextLength: 20,
+        maxTextLength: 20000,
+      });
+      await assertRichMedia(tx, rich.mediaIds, actor, rich.existingMediaIds);
       const media = dto.media ?? row.media;
       validateMediaAttachments(media);
       await this.validateRelations(
@@ -167,6 +185,7 @@ export class ListingsService {
         where: { id },
         data: {
           ...this.scalars(dto),
+          ...rich.data,
           agentId: dto.agentId,
           status:
             row.status === PublicationStatus.PUBLISHED
@@ -176,6 +195,8 @@ export class ListingsService {
           version: { increment: 1 },
         },
       });
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(tx, 'listing', id, rich.mediaIds);
       await this.audit.record(
         actor.id,
         'listing.updated',
@@ -213,6 +234,13 @@ export class ListingsService {
       }
       if (status === PublicationStatus.PUBLISHED || status === PublicationStatus.IN_REVIEW) {
         validateListingFacts(row);
+        const rich = prepareRichContent({}, row, 'description', {
+          minTextLength: 20,
+          maxTextLength: 20000,
+        });
+        await assertRichMedia(tx, rich.mediaIds, actor, rich.existingMediaIds);
+        if (rich.mediaIds.length || rich.existingMediaIds.length)
+          await replaceRichMedia(tx, 'listing', id, rich.mediaIds);
         if (row.media.length === 0)
           throw new BadRequestException('At least one property image is required before review');
         await this.validateRelations(

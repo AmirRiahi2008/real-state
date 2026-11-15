@@ -14,5 +14,6 @@
 !**/.env.example
 **/uploads
 .artifacts
+deliverables
 research
 .DS_Store

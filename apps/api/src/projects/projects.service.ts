@@ -29,6 +29,11 @@ import {
   validateProjectSearch,
 } from './project.policy';
 import { ManagedProject, presentProject, ProjectsRepository } from './projects.repository';
+import {
+  prepareRichContent,
+  assertRichMedia,
+  replaceRichMedia,
+} from '../rich-content/rich-content.policy';
 
 const defined = <T extends object>(value: T): Partial<T> =>
   Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as Partial<T>;
@@ -81,6 +86,10 @@ export class ProjectsService {
   async create(dto: CreateProjectDto, actor: AuthUser) {
     this.requireAdmin(actor);
     validateProjectNulls(dto);
+    const rich = prepareRichContent(dto, undefined, 'description', {
+      minTextLength: 20,
+      maxTextLength: 20000,
+    });
     validateProjectFacts({ ...dto, priceOnRequest: dto.priceOnRequest ?? false });
     validatePaymentPlan(dto.paymentPlan ?? []);
     validateFloorPlans(dto.floorPlans ?? [], dto.minBedrooms, dto.maxBedrooms);
@@ -92,14 +101,16 @@ export class ProjectsService {
         media: dto.media ?? [],
         amenityIds: dto.amenityIds ?? [],
       });
+      await assertRichMedia(tx, rich.mediaIds, actor);
       const row = await tx.project.create({
         data: {
           ...this.scalars(dto),
+          ...rich.data,
           slug: dto.slug,
           nameEn: dto.nameEn,
           nameAr: dto.nameAr,
-          descriptionEn: dto.descriptionEn,
-          descriptionAr: dto.descriptionAr,
+          descriptionEn: rich.textEn,
+          descriptionAr: rich.textAr,
           minBedrooms: dto.minBedrooms,
           maxBedrooms: dto.maxBedrooms,
           propertyTypes: dto.propertyTypes,
@@ -112,6 +123,8 @@ export class ProjectsService {
           amenities: { create: (dto.amenityIds ?? []).map((amenityId) => ({ amenityId })) },
         },
       });
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(tx, 'project', row.id, rich.mediaIds);
       await this.audit.record(actor.id, 'project.created', 'Project', row.id, {}, tx);
       return row;
     });
@@ -129,6 +142,11 @@ export class ProjectsService {
       const floorPlans = dto.floorPlans ?? storedArray(row.floorPlans, FloorPlanDto, 50);
       validatePaymentPlan(paymentPlan);
       validateFloorPlans(floorPlans, merged.minBedrooms, merged.maxBedrooms);
+      const rich = prepareRichContent(dto, row, 'description', {
+        minTextLength: 20,
+        maxTextLength: 20000,
+      });
+      await assertRichMedia(tx, rich.mediaIds, actor, rich.existingMediaIds);
       const media = dto.media ?? row.media;
       validateMediaAttachments(media);
       await this.validateRelations(tx, {
@@ -153,6 +171,7 @@ export class ProjectsService {
         where: { id },
         data: {
           ...this.scalars(dto),
+          ...rich.data,
           paymentPlan: dto.paymentPlan ? this.paymentJson(dto.paymentPlan) : undefined,
           floorPlans: dto.floorPlans ? this.floorJson(dto.floorPlans) : undefined,
           status:
@@ -163,6 +182,8 @@ export class ProjectsService {
           version: { increment: 1 },
         },
       });
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(tx, 'project', id, rich.mediaIds);
       await this.audit.record(
         actor.id,
         'project.updated',
@@ -199,6 +220,13 @@ export class ProjectsService {
       }
       if (status === PublicationStatus.PUBLISHED || status === PublicationStatus.IN_REVIEW) {
         validateProjectFacts(row);
+        const rich = prepareRichContent({}, row, 'description', {
+          minTextLength: 20,
+          maxTextLength: 20000,
+        });
+        await assertRichMedia(tx, rich.mediaIds, actor, rich.existingMediaIds);
+        if (rich.mediaIds.length || rich.existingMediaIds.length)
+          await replaceRichMedia(tx, 'project', id, rich.mediaIds);
         validatePaymentPlan(storedArray(row.paymentPlan, PaymentMilestoneDto, 20));
         validateFloorPlans(
           storedArray(row.floorPlans, FloorPlanDto, 50),

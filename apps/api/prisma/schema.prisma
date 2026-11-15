@@ -7,6 +7,7 @@ datasource db {
 }
 
 enum Role {
+  TEAM_MEMBER
   CUSTOMER
   AGENT
   ADMIN
@@ -88,6 +89,7 @@ enum LeadStatus {
 }
 
 enum ContentType {
+  NEWS
   ARTICLE
   AREA_GUIDE
   MARKET_REPORT
@@ -114,6 +116,7 @@ model User {
   sessions        AuthSession[]
   tokens          OneTimeToken[]
   agentProfile    AgentProfile?
+  teamProfile     TeamProfile?
   listings        Listing[]
   media           Media[]
   favorites       Favorite[]
@@ -236,51 +239,54 @@ model AgentProfile {
 }
 
 model Listing {
-  id               String            @id @default(uuid()) @db.Uuid
-  reference        String            @unique @db.VarChar(40)
-  slug             String            @unique @db.VarChar(160)
-  titleEn          String            @db.VarChar(200)
-  titleAr          String            @db.VarChar(200)
-  descriptionEn    String            @db.Text
-  descriptionAr    String            @db.Text
-  purpose          ListingPurpose
-  propertyType     PropertyType
-  completion       CompletionStatus
-  availability     Availability      @default(AVAILABLE)
-  furnishing       Furnishing        @default(UNFURNISHED)
-  status           PublicationStatus @default(DRAFT)
-  priceAed         Decimal?          @db.Decimal(16, 2)
-  priceOnRequest   Boolean           @default(false)
-  previousPriceAed Decimal?          @db.Decimal(16, 2)
-  rentalPeriod     RentalPeriod?
-  areaSqm          Decimal           @db.Decimal(12, 2)
-  plotAreaSqm      Decimal?          @db.Decimal(12, 2)
-  bedrooms         Int
-  bathrooms        Int
-  parking          Int               @default(0)
-  addressEn        String            @db.VarChar(300)
-  addressAr        String            @db.VarChar(300)
-  latitude         Decimal?          @db.Decimal(9, 6)
-  longitude        Decimal?          @db.Decimal(9, 6)
-  vacantOn         DateTime?         @db.Date
-  handoverDate     DateTime?         @db.Date
-  isExclusive      Boolean           @default(false)
-  permitNumber     String?           @db.VarChar(64)
-  permitUrl        String?           @db.VarChar(600)
-  areaId           String            @db.Uuid
-  agentId          String            @db.Uuid
-  projectId        String?           @db.Uuid
-  area             Area              @relation(fields: [areaId], references: [id], onDelete: Restrict)
-  agent            User              @relation(fields: [agentId], references: [id], onDelete: Restrict)
-  project          Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  media            ListingMedia[]
-  amenities        ListingAmenity[]
-  favorites        Favorite[]
-  leads            Lead[]
-  publishedAt      DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  version          Int               @default(1)
+  id                String             @id @default(uuid()) @db.Uuid
+  reference         String             @unique @db.VarChar(40)
+  slug              String             @unique @db.VarChar(160)
+  titleEn           String             @db.VarChar(200)
+  titleAr           String             @db.VarChar(200)
+  descriptionEn     String             @db.Text
+  descriptionAr     String             @db.Text
+  descriptionRichEn Json?
+  descriptionRichAr Json?
+  purpose           ListingPurpose
+  propertyType      PropertyType
+  completion        CompletionStatus
+  availability      Availability       @default(AVAILABLE)
+  furnishing        Furnishing         @default(UNFURNISHED)
+  status            PublicationStatus  @default(DRAFT)
+  priceAed          Decimal?           @db.Decimal(16, 2)
+  priceOnRequest    Boolean            @default(false)
+  previousPriceAed  Decimal?           @db.Decimal(16, 2)
+  rentalPeriod      RentalPeriod?
+  areaSqm           Decimal            @db.Decimal(12, 2)
+  plotAreaSqm       Decimal?           @db.Decimal(12, 2)
+  bedrooms          Int
+  bathrooms         Int
+  parking           Int                @default(0)
+  addressEn         String             @db.VarChar(300)
+  addressAr         String             @db.VarChar(300)
+  latitude          Decimal?           @db.Decimal(9, 6)
+  longitude         Decimal?           @db.Decimal(9, 6)
+  vacantOn          DateTime?          @db.Date
+  handoverDate      DateTime?          @db.Date
+  isExclusive       Boolean            @default(false)
+  permitNumber      String?            @db.VarChar(64)
+  permitUrl         String?            @db.VarChar(600)
+  areaId            String             @db.Uuid
+  agentId           String             @db.Uuid
+  projectId         String?            @db.Uuid
+  area              Area               @relation(fields: [areaId], references: [id], onDelete: Restrict)
+  agent             User               @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  project           Project?           @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  media             ListingMedia[]
+  amenities         ListingAmenity[]
+  favorites         Favorite[]
+  leads             Lead[]
+  publishedAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  version           Int                @default(1)
+  richMedia         ListingRichMedia[]
 
   @@index([status, purpose, createdAt(sort: Desc)])
   @@index([areaId, status, priceAed])
@@ -290,54 +296,61 @@ model Listing {
 }
 
 model Project {
-  id               String            @id @default(uuid()) @db.Uuid
-  slug             String            @unique @db.VarChar(160)
-  nameEn           String            @db.VarChar(200)
-  nameAr           String            @db.VarChar(200)
-  descriptionEn    String            @db.Text
-  descriptionAr    String            @db.Text
-  status           PublicationStatus @default(DRAFT)
-  startingPriceAed Decimal?          @db.Decimal(16, 2)
-  priceOnRequest   Boolean           @default(false)
-  handoverDate     DateTime?         @db.Date
-  minBedrooms      Int
-  maxBedrooms      Int
-  propertyTypes    PropertyType[]
-  paymentPlan      Json              @default("[]")
-  floorPlans       Json              @default("[]")
-  latitude         Decimal?          @db.Decimal(9, 6)
-  longitude        Decimal?          @db.Decimal(9, 6)
-  developerId      String            @db.Uuid
-  areaId           String            @db.Uuid
-  developer        Developer         @relation(fields: [developerId], references: [id], onDelete: Restrict)
-  area             Area              @relation(fields: [areaId], references: [id], onDelete: Restrict)
-  listings         Listing[]
-  media            ProjectMedia[]
-  amenities        ProjectAmenity[]
-  leads            Lead[]
-  publishedAt      DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  version          Int               @default(1)
+  id                String             @id @default(uuid()) @db.Uuid
+  slug              String             @unique @db.VarChar(160)
+  nameEn            String             @db.VarChar(200)
+  nameAr            String             @db.VarChar(200)
+  descriptionEn     String             @db.Text
+  descriptionAr     String             @db.Text
+  descriptionRichEn Json?
+  descriptionRichAr Json?
+  status            PublicationStatus  @default(DRAFT)
+  startingPriceAed  Decimal?           @db.Decimal(16, 2)
+  priceOnRequest    Boolean            @default(false)
+  handoverDate      DateTime?          @db.Date
+  minBedrooms       Int
+  maxBedrooms       Int
+  propertyTypes     PropertyType[]
+  paymentPlan       Json               @default("[]")
+  floorPlans        Json               @default("[]")
+  latitude          Decimal?           @db.Decimal(9, 6)
+  longitude         Decimal?           @db.Decimal(9, 6)
+  developerId       String             @db.Uuid
+  areaId            String             @db.Uuid
+  developer         Developer          @relation(fields: [developerId], references: [id], onDelete: Restrict)
+  area              Area               @relation(fields: [areaId], references: [id], onDelete: Restrict)
+  listings          Listing[]
+  media             ProjectMedia[]
+  amenities         ProjectAmenity[]
+  leads             Lead[]
+  publishedAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  version           Int                @default(1)
+  richMedia         ProjectRichMedia[]
 
   @@index([status, createdAt(sort: Desc)])
   @@index([areaId, developerId])
 }
 
 model Media {
-  id          String         @id @default(uuid()) @db.Uuid
-  ownerId     String         @db.Uuid
-  storageKey  String         @unique @db.VarChar(100)
-  mimeType    String         @db.VarChar(40)
-  size        Int
-  width       Int
-  height      Int
-  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Restrict)
-  listings    ListingMedia[]
-  projects    ProjectMedia[]
-  agentPhotos AgentProfile[] @relation("AgentPhoto")
-  articles    Article[]
-  createdAt   DateTime       @default(now())
+  id           String             @id @default(uuid()) @db.Uuid
+  ownerId      String             @db.Uuid
+  storageKey   String             @unique @db.VarChar(100)
+  mimeType     String             @db.VarChar(40)
+  size         Int
+  width        Int
+  height       Int
+  owner        User               @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  listings     ListingMedia[]
+  projects     ProjectMedia[]
+  agentPhotos  AgentProfile[]     @relation("AgentPhoto")
+  teamPhotos   TeamProfile[]      @relation("TeamPhoto")
+  articles     Article[]
+  createdAt    DateTime           @default(now())
+  richListings ListingRichMedia[]
+  richProjects ProjectRichMedia[]
+  richArticles ArticleRichMedia[]
 }
 
 model ListingMedia {
@@ -431,24 +444,27 @@ model Lead {
 }
 
 model Article {
-  id           String            @id @default(uuid()) @db.Uuid
-  slug         String            @unique @db.VarChar(160)
+  id           String             @id @default(uuid()) @db.Uuid
+  slug         String             @unique @db.VarChar(160)
   type         ContentType
-  titleEn      String            @db.VarChar(200)
-  titleAr      String            @db.VarChar(200)
-  excerptEn    String            @db.VarChar(600)
-  excerptAr    String            @db.VarChar(600)
-  bodyEn       String            @db.Text
-  bodyAr       String            @db.Text
-  status       PublicationStatus @default(DRAFT)
-  areaId       String?           @db.Uuid
-  coverMediaId String?           @db.Uuid
-  area         Area?             @relation(fields: [areaId], references: [id], onDelete: SetNull)
-  cover        Media?            @relation(fields: [coverMediaId], references: [id], onDelete: SetNull)
+  titleEn      String             @db.VarChar(200)
+  titleAr      String             @db.VarChar(200)
+  excerptEn    String             @db.VarChar(600)
+  excerptAr    String             @db.VarChar(600)
+  bodyEn       String             @db.Text
+  bodyAr       String             @db.Text
+  bodyRichEn   Json?
+  bodyRichAr   Json?
+  status       PublicationStatus  @default(DRAFT)
+  areaId       String?            @db.Uuid
+  coverMediaId String?            @db.Uuid
+  area         Area?              @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  cover        Media?             @relation(fields: [coverMediaId], references: [id], onDelete: SetNull)
   publishedAt  DateTime?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  version      Int               @default(1)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  version      Int                @default(1)
+  richMedia    ArticleRichMedia[]
 
   @@index([status, type, publishedAt(sort: Desc)])
 }
@@ -466,4 +482,92 @@ model AuditLog {
 
   @@index([entityType, entityId, createdAt])
   @@index([actorId, createdAt])
+}
+
+enum TeamMessageSender {
+  VISITOR
+  STAFF
+}
+
+model TeamProfile {
+  id            String             @id @default(uuid()) @db.Uuid
+  userId        String             @unique @db.Uuid
+  slug          String             @unique @db.VarChar(120)
+  displayName   String             @db.VarChar(160)
+  titleEn       String             @db.VarChar(80)
+  titleAr       String             @db.VarChar(80)
+  bioEn         String             @default("") @db.VarChar(2000)
+  bioAr         String             @default("") @db.VarChar(2000)
+  avatarMediaId String?            @db.Uuid
+  isPublic      Boolean            @default(true)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatar        Media?             @relation("TeamPhoto", fields: [avatarMediaId], references: [id], onDelete: SetNull)
+  conversations TeamConversation[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model TeamConversation {
+  id                    String        @id @default(uuid()) @db.Uuid
+  memberId              String        @db.Uuid
+  visitorName           String        @db.VarChar(160)
+  visitorEmail          String        @db.VarChar(254)
+  visitorTokenHash      String        @unique @db.VarChar(64)
+  visitorTokenExpiresAt DateTime
+  consentAt             DateTime      @default(now())
+  member                TeamProfile   @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  messages              TeamMessage[]
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([memberId, updatedAt(sort: Desc), id])
+  @@index([visitorTokenExpiresAt])
+}
+
+model TeamMessage {
+  id             String            @id @default(uuid()) @db.Uuid
+  conversationId String            @db.Uuid
+  sender         TeamMessageSender
+  body           String            @db.VarChar(3000)
+  conversation   TeamConversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+
+  @@index([conversationId, createdAt(sort: Desc), id])
+}
+
+model SiteContent {
+  key       String   @id @db.VarChar(40)
+  values    Json     @default("{}")
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
+}
+
+model ListingRichMedia {
+  listingId String  @db.Uuid
+  mediaId   String  @db.Uuid
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@id([listingId, mediaId])
+  @@index([mediaId])
+}
+
+model ProjectRichMedia {
+  projectId String  @db.Uuid
+  mediaId   String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@id([projectId, mediaId])
+  @@index([mediaId])
+}
+
+model ArticleRichMedia {
+  articleId String  @db.Uuid
+  mediaId   String  @db.Uuid
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@id([articleId, mediaId])
+  @@index([mediaId])
 }

@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 // Public website gateway: only these routes are exposed; staff mutations stay outside this surface.
 const publicGet =
-  /^v1\/(?:listings(?:\/[a-z0-9-]+(?:\/related)?)?|projects(?:\/[a-z0-9-]+)?|areas(?:\/[a-z0-9-]+)?|developers(?:\/[a-z0-9-]+)?|amenities|agents(?:\/[a-z0-9-]+)?|catalog\/autocomplete|content(?:\/[a-z0-9-]+)?|calculators\/(?:mortgage|rental-yield)|media\/[a-f0-9-]{36}\/file|health\/ready)$/;
+  /^v1\/(?:listings(?:\/[a-z0-9-]+(?:\/related)?)?|projects(?:\/[a-z0-9-]+)?|areas(?:\/[a-z0-9-]+)?|developers(?:\/[a-z0-9-]+)?|amenities|agents(?:\/[a-z0-9-]+)?|catalog\/autocomplete|site-content|content(?:\/[a-z0-9-]+)?|calculators\/(?:mortgage|rental-yield)|media\/[a-f0-9-]{36}\/file|health\/ready)$/;
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;

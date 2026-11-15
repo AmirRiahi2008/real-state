@@ -1,4 +1,6 @@
 import 'server-only';
+import { cache } from 'react';
+import type { RichDocument } from '@oriva/rich-content';
 import { headers } from 'next/headers';
 import { gatewayHeaders } from './gateway';
 import { ApiError, type Paginated, type Listing, type Project, type Area } from './api';
@@ -41,3 +43,42 @@ export const getProjects = (query?: Record<string, string>) =>
 export const getProject = (slug: string) =>
   serverApi<Project>(`/projects/${encodeURIComponent(slug)}`);
 export const getAreas = () => serverApi<Paginated<Area>>('/areas?limit=30');
+
+export const getSiteContent = cache(async () => {
+  try {
+    return await serverApi<{ version: number; values: import('./admin-types').SiteValues }>(
+      '/site-content',
+    );
+  } catch {
+    return { version: 0, values: {} };
+  }
+});
+export interface Article {
+  id: string;
+  slug: string;
+  type: string;
+  titleEn: string;
+  titleAr: string;
+  excerptEn: string;
+  excerptAr: string;
+  bodyEn?: string;
+  bodyAr?: string;
+  bodyRichEn?: RichDocument | null;
+  bodyRichAr?: RichDocument | null;
+  publishedAt: string | null;
+  cover?: { id: string; url: string } | null;
+}
+function articleMedia(article: Article): Article {
+  return {
+    ...article,
+    cover: article.cover
+      ? { ...article.cover, url: `/api/v1/media/${article.cover.id}/file` }
+      : null,
+  };
+}
+export const getArticles = async (query?: Record<string, string>) => {
+  const result = await serverApi<Paginated<Article>>(`/content${queryString(query)}`);
+  return { ...result, data: result.data.map(articleMedia) };
+};
+export const getArticle = async (slug: string) =>
+  articleMedia(await serverApi<Article>(`/content/${encodeURIComponent(slug)}`));

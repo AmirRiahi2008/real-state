@@ -5,6 +5,7 @@ import {
   ValidationPipe,
   VersioningType,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -12,6 +13,8 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { json, urlencoded, Request, Response, NextFunction } from 'express';
 import { HttpExceptionFilter } from './http-exception.filter';
+import { validateDocument } from '@oriva/rich-content';
+import { assertJsonStructure } from './json-structure.policy';
 export function setupApp(app: INestApplication, docs = true): void {
   const config = app.get(ConfigService);
   const production = config.get('NODE_ENV') === 'production';
@@ -62,13 +65,32 @@ export function setupApp(app: INestApplication, docs = true): void {
         : callback(new ForbiddenException('Origin is not allowed'), false),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Conversation-Token'],
     exposedHeaders: ['X-Request-Id', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'Retry-After'],
     maxAge: 600,
   });
   app.use(cookieParser());
-  app.use(json({ limit: '1mb', strict: true }));
+  app.use(json({ limit: '2mb', strict: true }));
   app.use(urlencoded({ extended: false, limit: '32kb' }));
+  // Bound rich trees before class-transformer recursively walks request values.
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    try {
+      assertJsonStructure(req.body);
+      if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) {
+        for (const key of ['bodyRichEn', 'bodyRichAr', 'descriptionRichEn', 'descriptionRichAr']) {
+          const document: unknown = req.body[key];
+          if (document !== undefined && document !== null)
+            req.body[key] = validateDocument(document, { maxTextLength: 100000 });
+        }
+      }
+      next();
+    } catch (error) {
+      next(
+        new BadRequestException(error instanceof Error ? error.message : 'Invalid rich content'),
+      );
+    }
+  });
+
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(

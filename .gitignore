@@ -15,6 +15,7 @@ uploads/
 .agents/
 research/
 .artifacts/
+deliverables/
 
 .next/
 .vercel/

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Plus, Minus } from 'lucide-react';
 import type { Locale } from '@/lib/api';
+import { useSiteText } from './site-content-provider';
 const questions = [
   {
     en: [
@@ -48,10 +49,13 @@ const questions = [
 export default function Faq({ locale }: { locale: Locale }) {
   const [open, setOpen] = useState<number | null>(0);
   const reduced = useReducedMotion();
+  const text = useSiteText(locale);
   return (
     <div className="faq-list">
       {questions.map((question, index) => {
-        const [title, answer] = locale === 'ar' ? question.ar : question.en;
+        const fallback = locale === 'ar' ? question.ar : question.en;
+        const title = text(`faq.${index}.question`, fallback[0]),
+          answer = text(`faq.${index}.answer`, fallback[1]);
         return (
           <div className={`faq-item${open === index ? ' faq-open' : ''}`} key={index}>
             <button

@@ -96,5 +96,6 @@ class MediaController {
   ],
   controllers: [MediaController],
   providers: [MediaService, { provide: ImageStorage, useClass: LocalImageStorage }],
+  exports: [MediaService],
 })
 export class MediaModule {}

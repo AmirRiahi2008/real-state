@@ -205,3 +205,9 @@ Mortgage uses fixed-rate monthly amortization, supports zero interest and return
 ## Limits and client handling
 
 Most GET requests allow 120 requests/minute per route/IP and writes 30/minute. Sensitive actions have tighter limits: lead intake and registration 5/minute, login 10/minute, reset request 3/minute, upload 10/minute. Read `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `Retry-After`; wait before retrying 429 responses. JSON bodies are limited to 1 MiB independently of DTO field bounds. Use the generated OpenAPI contract when implementing typed Next.js API calls.
+
+## Structured rich content
+
+Article/news bodies accept nullable `bodyRichEn` / `bodyRichAr`. Listing and project descriptions accept nullable `descriptionRichEn` / `descriptionRichAr`. The document follows the shared contract in `packages/rich-content/index.d.ts`; inline images persist a UUID `mediaId`, never an external source URL. Raw HTML nodes, unsafe links, unrecognized attributes and oversized/deep trees are rejected. Existing plain text fields remain available, and the server derives them from a supplied rich document.
+
+Omitting a locale preserves its content. Sending plain text for a locale without its rich companion clears that locale's prior formatting. Explicit `null` clears formatting while retaining text unless replacement text is provided. Version and publication transitions are unchanged. Public collection responses omit rich document trees; detail endpoints include them. Inline media references participate in ownership, publication eligibility and deletion checks through database foreign keys.

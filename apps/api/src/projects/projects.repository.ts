@@ -47,7 +47,7 @@ type PublicProject = Prisma.ProjectGetPayload<{ select: typeof publicProjectSele
 export type ManagedProject = Prisma.ProjectGetPayload<{
   include: { media: true; amenities: true };
 }>;
-export function presentProject(row: PublicProject) {
+export function presentProject<T extends PublicProject>(row: T) {
   const { media, amenities, ...project } = row;
   return {
     ...project,
@@ -122,7 +122,7 @@ export class ProjectsRepository {
   publicOne(slug: string) {
     return this.prisma.project.findFirst({
       where: { AND: [publicProjectWhere, { slug }] },
-      select: publicProjectSelect,
+      select: { ...publicProjectSelect, descriptionRichEn: true, descriptionRichAr: true },
     });
   }
   managedOne(id: string) {

@@ -1,3 +1,5 @@
+import type { RichDocument } from '@oriva/rich-content';
+
 export type Locale = 'en' | 'ar';
 export interface Media {
   id: string;
@@ -35,6 +37,8 @@ export interface Listing {
   titleAr: string;
   descriptionEn: string;
   descriptionAr: string;
+  descriptionRichEn?: RichDocument | null;
+  descriptionRichAr?: RichDocument | null;
   purpose: string;
   propertyType: string;
   completion: string;
@@ -71,6 +75,8 @@ export interface Project {
   nameAr: string;
   descriptionEn: string;
   descriptionAr: string;
+  descriptionRichEn?: RichDocument | null;
+  descriptionRichAr?: RichDocument | null;
   startingPriceAed: string | null;
   priceOnRequest: boolean;
   handoverDate?: string | null;
@@ -97,6 +103,18 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
+export function contentTypeLabel(type: string, locale: Locale): string {
+  const labels: Record<string, [string, string]> = {
+    NEWS: ['News', 'أخبار'],
+    ARTICLE: ['Article', 'مقال'],
+    AREA_GUIDE: ['Area guide', 'دليل المنطقة'],
+    MARKET_REPORT: ['Market report', 'تقرير السوق'],
+    BUYER_GUIDE: ['Buyer guide', 'دليل المشتري'],
+    SERVICE: ['Service', 'خدمة'],
+  };
+  return labels[type]?.[locale === 'ar' ? 1 : 0] ?? type.replaceAll('_', ' ');
+}
+
 export function localized(object: unknown, base: string, locale: Locale): string {
   if (!object || typeof object !== 'object') return '';
   const value = object as Record<string, unknown>;

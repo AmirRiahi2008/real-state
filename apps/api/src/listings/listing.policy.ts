@@ -39,6 +39,8 @@ export function validateSearchRanges(query: SearchListingsDto): void {
 }
 export function validateListingInputNulls(input: object): void {
   const nullable = new Set([
+    'descriptionRichEn',
+    'descriptionRichAr',
     'priceAed',
     'previousPriceAed',
     'rentalPeriod',

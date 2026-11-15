@@ -1,3 +1,4 @@
+import type { RichDocument } from '@oriva/rich-content';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -10,6 +11,7 @@ import {
   IsInt,
   IsNumber,
   IsOptional,
+  IsObject,
   IsString,
   IsUUID,
   Matches,
@@ -18,6 +20,7 @@ import {
   Min,
   MinLength,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Emirate, PropertyType } from '@prisma/client';
@@ -130,19 +133,29 @@ export class CreateProjectDto {
   @Matches(plainText)
   nameAr: string;
   @ApiProperty({ description: 'Plain text; clients must not render raw HTML.' })
+  @ValidateIf(
+    (object: CreateProjectDto) =>
+      object.descriptionRichEn === undefined || object.descriptionRichEn === null,
+  )
   @Transform(trim)
   @IsString()
   @MinLength(20)
   @MaxLength(20000)
   @Matches(plainText)
   descriptionEn: string;
+  @IsOptional() @IsObject() descriptionRichEn?: RichDocument | null;
   @ApiProperty({ description: 'Plain text; clients must not render raw HTML.' })
+  @ValidateIf(
+    (object: CreateProjectDto) =>
+      object.descriptionRichAr === undefined || object.descriptionRichAr === null,
+  )
   @Transform(trim)
   @IsString()
   @MinLength(20)
   @MaxLength(20000)
   @Matches(plainText)
   descriptionAr: string;
+  @IsOptional() @IsObject() descriptionRichAr?: RichDocument | null;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
   @Matches(decimalPattern)

@@ -17,8 +17,10 @@ import { publicListingWhere } from '../listings/listings.repository';
 import { publicProjectWhere } from '../projects/projects.repository';
 import { publicAgentWhere } from '../catalog/catalog.repository';
 import { publicContentScope } from '../content/content.repository';
+import { publicTeamWhere } from '../team/team.policy';
 const metadataSelect = {
   id: true,
+  ownerId: true,
   mimeType: true,
   size: true,
   width: true,
@@ -30,7 +32,11 @@ export const publicMediaWhere: Prisma.MediaWhereInput = {
     { listings: { some: { listing: publicListingWhere } } },
     { projects: { some: { project: publicProjectWhere } } },
     { agentPhotos: { some: publicAgentWhere } },
+    { teamPhotos: { some: publicTeamWhere } },
     { articles: { some: publicContentScope } },
+    { richArticles: { some: { article: publicContentScope } } },
+    { richListings: { some: { listing: publicListingWhere } } },
+    { richProjects: { some: { project: publicProjectWhere } } },
   ],
 };
 @Injectable()
@@ -94,7 +100,7 @@ export class MediaService {
     }
   }
   async mine(user: AuthUser, q: PaginationDto) {
-    const where = { ownerId: user.id };
+    const where = user.role === Role.ADMIN ? {} : { ownerId: user.id };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.media.findMany({
         where,
@@ -128,6 +134,7 @@ export class MediaService {
             OR: [
               { ownerId: user.id },
               { listings: { some: { listing: { agentId: user.id } } } },
+              { richListings: { some: { listing: { agentId: user.id } } } },
               { agentPhotos: { some: { userId: user.id } } },
             ],
           };
@@ -145,7 +152,18 @@ export class MediaService {
       const current = await tx.media.findFirst({
         where: { id, ...(user.role === Role.ADMIN ? {} : { ownerId: user.id }) },
         include: {
-          _count: { select: { listings: true, projects: true, agentPhotos: true, articles: true } },
+          _count: {
+            select: {
+              listings: true,
+              projects: true,
+              agentPhotos: true,
+              teamPhotos: true,
+              articles: true,
+              richArticles: true,
+              richListings: true,
+              richProjects: true,
+            },
+          },
         },
       });
       if (!current) throw new NotFoundException('Image not found');

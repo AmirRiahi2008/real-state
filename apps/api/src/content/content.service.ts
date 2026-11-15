@@ -4,12 +4,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, PublicationStatus } from '@prisma/client';
+import { Prisma, PublicationStatus, Role } from '@prisma/client';
 import { AuthUser } from '../auth/auth-user';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../database/prisma.service';
 import { paginated } from '../common/pagination.dto';
 import { ContentRepository } from './content.repository';
+import {
+  prepareRichContent,
+  assertRichMedia,
+  replaceRichMedia,
+  withoutRichDocuments,
+} from '../rich-content/rich-content.policy';
 import {
   ContentQueryDto,
   ContentTransitionDto,
@@ -39,9 +45,23 @@ export class ContentService {
     return article;
   }
   async create(dto: CreateContentDto, actor: AuthUser) {
+    const rich = prepareRichContent(dto, undefined, 'body', {
+      minTextLength: 10,
+      maxTextLength: 100000,
+    });
     return this.prisma.$transaction(async (db) => {
       await this.validateReferences(db, dto, actor);
-      const article = await db.article.create({ data: dto });
+      await assertRichMedia(db, rich.mediaIds, actor);
+      const article = await db.article.create({
+        data: {
+          ...withoutRichDocuments(dto),
+          ...rich.data,
+          bodyEn: rich.textEn,
+          bodyAr: rich.textAr,
+        },
+      });
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(db, 'article', article.id, rich.mediaIds);
       await this.audit.record(actor.id, 'content.create', 'Article', article.id, {}, db);
       return article;
     });
@@ -50,12 +70,20 @@ export class ContentService {
     return this.prisma.$transaction(async (db) => {
       const current = await db.article.findUnique({ where: { id } });
       if (!current) throw new NotFoundException('Content not found');
+      if (current.version !== dto.version)
+        throw new ConflictException('Content changed; reload the current version before editing');
       await this.validateReferences(db, dto, actor);
-      const { version, ...data } = dto;
+      const rich = prepareRichContent(dto, current, 'body', {
+        minTextLength: 10,
+        maxTextLength: 100000,
+      });
+      await assertRichMedia(db, rich.mediaIds, actor, rich.existingMediaIds);
+      const { version, ...data } = withoutRichDocuments(dto);
       const changed = await db.article.updateMany({
         where: { id, version },
         data: {
           ...data,
+          ...rich.data,
           status: PublicationStatus.DRAFT,
           publishedAt: null,
           version: { increment: 1 },
@@ -63,6 +91,8 @@ export class ContentService {
       });
       if (!changed.count)
         throw new ConflictException('Content changed; reload the current version before editing');
+      if (rich.mediaIds.length || rich.existingMediaIds.length)
+        await replaceRichMedia(db, 'article', id, rich.mediaIds);
       await this.audit.record(actor.id, 'content.update', 'Article', id, {}, db);
       return db.article.findUniqueOrThrow({ where: { id } });
     });
@@ -78,10 +108,17 @@ export class ContentService {
       if (!current) throw new NotFoundException('Content not found');
       if (current.version !== dto.version)
         throw new ConflictException('Content changed; reload its current version');
+      let mediaToReplace: string[] | null = null;
       if (status === PublicationStatus.PUBLISHED) {
         if (current.status === PublicationStatus.ARCHIVED)
           throw new BadRequestException('Edit archived content into a draft before publishing');
         await this.validateReferences(db, current, actor, true);
+        const rich = prepareRichContent({}, current, 'body', {
+          minTextLength: 10,
+          maxTextLength: 100000,
+        });
+        await assertRichMedia(db, rich.mediaIds, actor, rich.existingMediaIds);
+        if (rich.mediaIds.length || rich.existingMediaIds.length) mediaToReplace = rich.mediaIds;
       }
       const result = await db.article.updateMany({
         where: { id, version: dto.version },
@@ -92,6 +129,7 @@ export class ContentService {
         },
       });
       if (!result.count) throw new ConflictException('Content changed; reload its current version');
+      if (mediaToReplace !== null) await replaceRichMedia(db, 'article', id, mediaToReplace);
       await this.audit.record(
         actor.id,
         status === PublicationStatus.PUBLISHED ? 'content.publish' : 'content.archive',
@@ -122,8 +160,11 @@ export class ContentService {
         where: { id: dto.coverMediaId },
         select: { ownerId: true },
       });
-      if (!media || (!existingPublication && media.ownerId !== actor.id))
-        throw new BadRequestException('Cover must be an image uploaded by this administrator');
+      if (
+        !media ||
+        (!existingPublication && actor.role !== Role.ADMIN && media.ownerId !== actor.id)
+      )
+        throw new BadRequestException('Cover image not found or unavailable');
     }
   }
 }

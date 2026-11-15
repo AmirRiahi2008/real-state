@@ -1,6 +1,6 @@
 .cinematic-story {
   --cinematic-header: 88px;
-  --cinematic-scroll: clamp(10500px, 1200svh, 14500px);
+  --cinematic-scroll: clamp(21000px, 2400svh, 29000px);
   height: calc(100svh + var(--cinematic-scroll));
   position: relative;
   background: var(--bg);
@@ -515,6 +515,11 @@ html[lang='ar'] .cinematic-final-actions .button svg {
     font-size: 45px;
   }
 }
+@media (min-width: 601px) {
+  html[lang='en'] .cinematic-caption-compact h2 {
+    font-size: clamp(42px, 4.3vw, 68px);
+  }
+}
 @media (max-width: 1200px) {
   .cinematic-caption-position {
     width: 35vw;
@@ -708,7 +713,7 @@ html[lang='ar'] .cinematic-final-actions .button svg {
 }
 @media (max-width: 600px) {
   .cinematic-story {
-    --cinematic-scroll: 10500px;
+    --cinematic-scroll: 21000px;
   }
   .cinematic-viewport {
     height: calc(100svh - 75px);
@@ -969,5 +974,33 @@ html[lang='ar'] .cinematic-final-actions .button svg {
   }
   .cinematic-loader > span {
     animation: none;
+  }
+}
+
+/* A quiet reading surface over the denser city, kept clear of the landmark. */
+@media (min-width: 801px) {
+  .cinematic-scrim-left {
+    background: linear-gradient(90deg, #f6f5f0f5 0%, #f6f5f0e8 23%, #f6f5f09e 39%, transparent 64%);
+  }
+  .cinematic-scrim-right {
+    background: linear-gradient(
+      270deg,
+      #f6f5f0f5 0%,
+      #f6f5f0e8 23%,
+      #f6f5f09e 39%,
+      transparent 64%
+    );
+  }
+  :root[data-theme='dark'] .cinematic-scrim-left {
+    background: linear-gradient(90deg, #142126fa 0%, #142126ed 23%, #142126b8 39%, transparent 64%);
+  }
+  :root[data-theme='dark'] .cinematic-scrim-right {
+    background: linear-gradient(
+      270deg,
+      #142126fa 0%,
+      #142126ed 23%,
+      #142126b8 39%,
+      transparent 64%
+    );
   }
 }

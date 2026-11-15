@@ -61,7 +61,13 @@ export class ContentRepository {
   bySlug(slug: string) {
     return this.prisma.article.findFirst({
       where: { AND: [publicContentScope, { slug }] },
-      select: { ...publicContentSummary, bodyEn: true, bodyAr: true },
+      select: {
+        ...publicContentSummary,
+        bodyEn: true,
+        bodyAr: true,
+        bodyRichEn: true,
+        bodyRichAr: true,
+      },
     });
   }
   managed(id: string) {

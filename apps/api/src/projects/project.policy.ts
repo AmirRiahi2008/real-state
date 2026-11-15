@@ -65,7 +65,14 @@ export function validateProjectSearch(query: SearchProjectsDto): void {
     throw new BadRequestException('Handover dates are out of order');
 }
 export function validateProjectNulls(input: object): void {
-  const nullable = new Set(['startingPriceAed', 'handoverDate', 'latitude', 'longitude']);
+  const nullable = new Set([
+    'descriptionRichEn',
+    'descriptionRichAr',
+    'startingPriceAed',
+    'handoverDate',
+    'latitude',
+    'longitude',
+  ]);
   if (Object.entries(input).some(([key, value]) => value === null && !nullable.has(key)))
     throw new BadRequestException('A required project value cannot be null');
 }

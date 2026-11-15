@@ -922,6 +922,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "NEWS",
                 "ARTICLE",
                 "AREA_GUIDE",
                 "MARKET_REPORT",
@@ -1001,6 +1002,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "NEWS",
                 "ARTICLE",
                 "AREA_GUIDE",
                 "MARKET_REPORT",
@@ -1285,6 +1287,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "TEAM_MEMBER",
                 "CUSTOMER",
                 "AGENT",
                 "ADMIN"
@@ -2049,7 +2052,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -2548,7 +2558,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -3373,6 +3390,1022 @@
           "Media"
         ]
       }
+    },
+    "/api/v1/team/members": {
+      "get": {
+        "operationId": "TeamController_members_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/members/{slug}": {
+      "get": {
+        "operationId": "TeamController_member_v1",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/me": {
+      "get": {
+        "operationId": "TeamController_me_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      },
+      "patch": {
+        "operationId": "TeamController_update_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeamProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/me/photo": {
+      "post": {
+        "operationId": "TeamController_photo_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/conversations": {
+      "post": {
+        "operationId": "TeamController_createConversation_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamConversationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/conversations/{id}": {
+      "get": {
+        "operationId": "TeamController_conversation_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "required": false,
+            "in": "query",
+            "description": "Load messages older than this message in the same thread.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Conversation-Token",
+            "in": "header",
+            "description": "Private receipt returned only when this conversation was created.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/conversations/{id}/messages": {
+      "post": {
+        "operationId": "TeamController_visitorMessage_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Conversation-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/inbox": {
+      "get": {
+        "operationId": "TeamController_inbox_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/inbox/{id}": {
+      "get": {
+        "operationId": "TeamController_thread_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "required": false,
+            "in": "query",
+            "description": "Load messages older than this message in the same thread.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/team/inbox/{id}/replies": {
+      "post": {
+        "operationId": "TeamController_reply_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Team and private conversations"
+        ]
+      }
+    },
+    "/api/v1/site-content": {
+      "get": {
+        "operationId": "SiteContentController_read_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SiteContent"
+        ]
+      }
+    },
+    "/api/v1/admin/session": {
+      "get": {
+        "operationId": "AdminController_session_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/overview": {
+      "get": {
+        "operationId": "AdminController_overview_v1",
+        "parameters": [
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "default": 30,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/options": {
+      "get": {
+        "operationId": "AdminController_options_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/{kind}": {
+      "get": {
+        "operationId": "AdminController_collection_v1",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/{kind}/{id}": {
+      "get": {
+        "operationId": "AdminController_catalogOne_v1",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/audit": {
+      "get": {
+        "operationId": "AdminController_audit_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/users": {
+      "post": {
+        "operationId": "AdminController_createUser_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/password": {
+      "post": {
+        "operationId": "AdminController_resetPassword_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/team": {
+      "get": {
+        "operationId": "AdminController_profiles_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createProfile_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/team/{id}": {
+      "get": {
+        "operationId": "AdminController_profile_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_updateProfile_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdminTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/conversations": {
+      "get": {
+        "operationId": "AdminController_inbox_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/conversations/{id}": {
+      "get": {
+        "operationId": "AdminController_thread_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "required": false,
+            "in": "query",
+            "description": "Load messages older than this message in the same thread.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/conversations/{id}/replies": {
+      "post": {
+        "operationId": "AdminController_reply_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/site-content": {
+      "get": {
+        "operationId": "AdminController_siteContent_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_updateSiteContent_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Administration"
+        ]
+      }
     }
   },
   "info": {
@@ -3917,6 +4950,7 @@
           "type": {
             "type": "string",
             "enum": [
+              "NEWS",
               "ARTICLE",
               "AREA_GUIDE",
               "MARKET_REPORT",
@@ -3954,11 +4988,19 @@
             "maxLength": 100000,
             "pattern": "^[^<>]*$"
           },
+          "bodyRichEn": {
+            "type": "object",
+            "nullable": true
+          },
           "bodyAr": {
             "type": "string",
             "minLength": 10,
             "maxLength": 100000,
             "pattern": "^[^<>]*$"
+          },
+          "bodyRichAr": {
+            "type": "object",
+            "nullable": true
           },
           "areaId": {
             "type": "string",
@@ -3993,6 +5035,7 @@
           },
           "type": {
             "enum": [
+              "NEWS",
               "ARTICLE",
               "AREA_GUIDE",
               "MARKET_REPORT",
@@ -4031,11 +5074,19 @@
             "maxLength": 100000,
             "pattern": "^[^<>]*$"
           },
+          "bodyRichEn": {
+            "type": "object",
+            "nullable": true
+          },
           "bodyAr": {
             "type": "string",
             "minLength": 10,
             "maxLength": 100000,
             "pattern": "^[^<>]*$"
+          },
+          "bodyRichAr": {
+            "type": "object",
+            "nullable": true
           },
           "areaId": {
             "type": "string",
@@ -4093,6 +5144,7 @@
           "role": {
             "type": "string",
             "enum": [
+              "TEAM_MEMBER",
               "CUSTOMER",
               "AGENT",
               "ADMIN"
@@ -4333,6 +5385,14 @@
             "items": {
               "$ref": "#/components/schemas/MediaAttachmentDto"
             }
+          },
+          "descriptionRichEn": {
+            "type": "object",
+            "nullable": true
+          },
+          "descriptionRichAr": {
+            "type": "object",
+            "nullable": true
           }
         },
         "required": [
@@ -4555,6 +5615,14 @@
               "$ref": "#/components/schemas/MediaAttachmentDto"
             }
           },
+          "descriptionRichEn": {
+            "type": "object",
+            "nullable": true
+          },
+          "descriptionRichAr": {
+            "type": "object",
+            "nullable": true
+          },
           "version": {
             "type": "number",
             "minimum": 1,
@@ -4755,6 +5823,14 @@
             "items": {
               "$ref": "#/components/schemas/MediaAttachmentDto"
             }
+          },
+          "descriptionRichEn": {
+            "type": "object",
+            "nullable": true
+          },
+          "descriptionRichAr": {
+            "type": "object",
+            "nullable": true
           }
         },
         "required": [
@@ -4893,6 +5969,14 @@
               "$ref": "#/components/schemas/MediaAttachmentDto"
             }
           },
+          "descriptionRichEn": {
+            "type": "object",
+            "nullable": true
+          },
+          "descriptionRichAr": {
+            "type": "object",
+            "nullable": true
+          },
           "version": {
             "type": "number",
             "minimum": 1
@@ -5029,6 +6113,296 @@
             "additionalProperties": true
           }
         }
+      },
+      "UpdateTeamProfileDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "Public display title; never changes account permissions."
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "bioEn": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "bioAr": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "avatarMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "An image owned by this account, or null."
+          }
+        }
+      },
+      "CreateTeamConversationDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          },
+          "memberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "consent": {
+            "type": "boolean",
+            "description": "Consent to store this private conversation.",
+            "example": true
+          }
+        },
+        "required": [
+          "body",
+          "memberId",
+          "name",
+          "email",
+          "consent"
+        ]
+      },
+      "ConversationMessageDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "CreateAdminUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "TEAM_MEMBER",
+              "CUSTOMER",
+              "AGENT",
+              "ADMIN"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName",
+          "role"
+        ]
+      },
+      "AdminResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "newPassword"
+        ]
+      },
+      "CreateAdminTeamDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "role": {
+            "enum": [
+              "TEAM_MEMBER",
+              "CUSTOMER",
+              "AGENT",
+              "ADMIN"
+            ],
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "bioEn": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^[^<>\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]*$"
+          },
+          "bioAr": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^[^<>\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]*$"
+          },
+          "avatarMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "isPublic": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName",
+          "role",
+          "slug",
+          "displayName",
+          "titleEn",
+          "titleAr"
+        ]
+      },
+      "UpdateAdminTeamDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "titleEn": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "Public display title; never changes account permissions."
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "bioEn": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "bioAr": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "avatarMediaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "An image owned by this account, or null."
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        }
+      },
+      "UpdateSiteContentDto": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "values"
+        ]
       }
     }
   }

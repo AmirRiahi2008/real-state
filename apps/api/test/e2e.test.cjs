@@ -170,7 +170,8 @@ before(
       COOKIE_SECURE: 'false',
       SWAGGER_ENABLED: 'false',
       TRUST_PROXY_HOPS: '0',
-      SMTP_HOST: process.env.SMTP_HOST || '127.0.0.1',
+      SMTP_HOST:
+        process.env.SMTP_HOST === 'localhost' ? '127.0.0.1' : process.env.SMTP_HOST || '127.0.0.1',
       SMTP_PORT: process.env.SMTP_PORT || '1025',
       SMTP_FROM: 'integration@example.test',
       SMTP_SECURE: process.env.SMTP_SECURE || 'false',
@@ -636,7 +637,7 @@ test('bilingual content can use its documented length and follows publication vi
   await request(http)
     .post(`${api}/auth/register`)
     .set('Content-Type', 'application/json')
-    .send(JSON.stringify({ padding: 'x'.repeat(1048577) }))
+    .send(JSON.stringify({ padding: 'x'.repeat(2097153) }))
     .expect(413);
 });
 
@@ -717,4 +718,875 @@ test('database checks reject invalid direct writes outside the HTTP validation l
     await direct.end();
   }
   assert.equal((await prisma.listing.findUniqueOrThrow({ where: { id: listing.id } })).version, 1);
+});
+
+async function createTeamMember(label) {
+  const user = await createUser('TEAM_MEMBER', label);
+  const profile = await prisma.teamProfile.create({
+    data: {
+      userId: user.id,
+      slug: `${label}-${runId}`,
+      displayName: `${label} Synthetic`,
+      titleEn: 'Manager',
+      titleAr: 'مدير',
+      bioEn: 'Synthetic team profile used only in an isolated integration database.',
+      bioAr: 'ملف فريق تجريبي للاختبارات المعزولة فقط.',
+    },
+  });
+  return { user, profile };
+}
+
+function assertPublicTeamProjection(profile) {
+  for (const privateField of [
+    'userId',
+    'email',
+    'passwordHash',
+    'avatarMediaId',
+    'visitorTokenHash',
+    'storageKey',
+  ])
+    assert.equal(profile[privateField], undefined);
+}
+
+test('team profiles keep display titles separate from permissions and scope photo ownership', async () => {
+  const owner = await createTeamMember('team-profile-owner');
+  const stranger = await createTeamMember('team-profile-other');
+  const session = await login(owner.user);
+  const otherSession = await login(stranger.user);
+  const memberSession = await login(otherCustomer);
+
+  const publicProfile = (
+    await request(http).get(`${api}/team/members/${owner.profile.slug}`).expect(200)
+  ).body;
+  assertPublicTeamProjection(publicProfile);
+  assert.equal(publicProfile.displayName, owner.profile.displayName);
+  await request(http).get(`${api}/team/me`).expect(401);
+  await auth(request(http).get(`${api}/team/me`), memberSession).expect(403);
+
+  await auth(request(http).patch(`${api}/team/me`), session)
+    .send({ role: 'ADMIN', userId: stranger.user.id, isPublic: false })
+    .expect(400);
+  await auth(request(http).patch(`${api}/team/me`), session)
+    .send({ displayName: null })
+    .expect(400);
+  const updated = (
+    await auth(request(http).patch(`${api}/team/me`), session)
+      .send({ titleEn: 'Administrator', bioEn: 'A display title is not an authorization role.' })
+      .expect(200)
+  ).body;
+  assert.equal(updated.titleEn, 'Administrator');
+  assert.equal(updated.email, owner.user.email);
+  assert.equal(
+    (await prisma.user.findUniqueOrThrow({ where: { id: owner.user.id } })).role,
+    'TEAM_MEMBER',
+  );
+  await auth(request(http).post(`${api}/listings/manage`), session)
+    .send(listingInput(`team-forbidden-listing-${runId}`))
+    .expect(403);
+  await auth(request(http).patch(`${api}/areas/manage/${area.id}`), session)
+    .send({ nameEn: 'Not authorized' })
+    .expect(403);
+  await auth(request(http).get(`${api}/content/manage`), session).expect(403);
+  await auth(request(http).patch(`${api}/users/${stranger.user.id}`), session)
+    .send({ role: 'ADMIN' })
+    .expect(403);
+
+  const photoBytes = await sharp({
+    create: { width: 32, height: 40, channels: 3, background: '#645b8b' },
+  })
+    .png()
+    .toBuffer();
+  const otherPhoto = (
+    await auth(request(http).post(`${api}/team/me/photo`), otherSession)
+      .attach('file', photoBytes, { filename: 'synthetic.png', contentType: 'image/png' })
+      .expect(201)
+  ).body;
+  const beforePhoto = (await auth(request(http).get(`${api}/team/me`), session).expect(200)).body;
+  await auth(request(http).patch(`${api}/team/me`), session)
+    .send({ avatarMediaId: otherPhoto.avatarMediaId })
+    .expect(404);
+  assert.equal(
+    (await auth(request(http).get(`${api}/team/me`), session).expect(200)).body.avatarMediaId,
+    beforePhoto.avatarMediaId,
+  );
+  await auth(request(http).post(`${api}/team/me/photo`), session)
+    .attach('file', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'), {
+      filename: 'forged.png',
+      contentType: 'image/png',
+    })
+    .expect(400);
+  const ownPhoto = (
+    await auth(request(http).post(`${api}/team/me/photo`), session)
+      .attach('file', photoBytes, { filename: 'own.png', contentType: 'image/png' })
+      .expect(201)
+  ).body;
+  assert.ok(ownPhoto.avatarMediaId);
+  assert.equal(ownPhoto.photoUrl, `${api}/media/${ownPhoto.avatarMediaId}/file`);
+  const media = await prisma.media.findUniqueOrThrow({ where: { id: ownPhoto.avatarMediaId } });
+  assert.equal(media.ownerId, owner.user.id);
+  assert.equal(media.mimeType, 'image/webp');
+  const visiblePhoto = await request(http).get(ownPhoto.photoUrl).expect(200);
+  assert.equal(visiblePhoto.headers['content-type'], 'image/webp');
+  const reflected = (
+    await request(http).get(`${api}/team/members/${owner.profile.slug}`).expect(200)
+  ).body;
+  assert.equal(reflected.photoUrl, ownPhoto.photoUrl);
+  assert.equal(reflected.titleEn, 'Administrator');
+  assertPublicTeamProjection(reflected);
+
+  await prisma.user.update({ where: { id: owner.user.id }, data: { emailVerifiedAt: null } });
+  await auth(request(http).patch(`${api}/team/me`), session)
+    .send({ bioEn: 'Unverified mutation' })
+    .expect(403);
+  await prisma.user.update({ where: { id: owner.user.id }, data: { isActive: false } });
+  await auth(request(http).get(`${api}/team/me`), session).expect(401);
+  await request(http).get(`${api}/team/members/${owner.profile.slug}`).expect(404);
+  await request(http).get(ownPhoto.photoUrl).expect(404);
+});
+
+test('private team conversations enforce visitor receipts, member ownership, expiry and bounded cursors', async () => {
+  const owner = await createTeamMember('team-thread-owner');
+  const stranger = await createTeamMember('team-thread-other');
+  const session = await login(owner.user);
+  const otherSession = await login(stranger.user);
+  const input = {
+    memberId: owner.profile.id,
+    name: 'Synthetic Visitor',
+    email: `team-visitor-${runId}@example.test`,
+    body: 'Question with literal markup: <img src=x onerror=alert(1)>',
+    consent: true,
+  };
+  await request(http)
+    .post(`${api}/team/conversations`)
+    .send({ ...input, consent: false })
+    .expect(400);
+  await request(http)
+    .post(`${api}/team/conversations`)
+    .send({ ...input, sender: 'STAFF' })
+    .expect(400);
+  const created = (await request(http).post(`${api}/team/conversations`).send(input).expect(201))
+    .body;
+  assert.match(created.accessToken, /^[A-Za-z0-9_-]{43}$/);
+  assert.equal(created.visitorTokenHash, undefined);
+  assert.equal(created.messages[0].sender, 'VISITOR');
+  assert.equal(created.messages[0].body, input.body);
+  assertPublicTeamProjection(created.member);
+  const stored = await prisma.teamConversation.findUniqueOrThrow({ where: { id: created.id } });
+  const { hashToken } = require('../dist/auth/token.utils');
+  assert.equal(stored.visitorTokenHash, hashToken(created.accessToken));
+  assert.ok(!JSON.stringify(stored).includes(created.accessToken));
+  const audit = await prisma.auditLog.findMany({ where: { entityId: created.id } });
+  assert.ok(!JSON.stringify(audit).includes(created.accessToken));
+  assert.ok(!JSON.stringify(audit).includes(input.body));
+  assert.ok(!JSON.stringify(audit).includes(input.email));
+
+  await request(http).get(`${api}/team/conversations/${created.id}`).expect(404);
+  await request(http)
+    .get(`${api}/team/conversations/${created.id}`)
+    .set('X-Conversation-Token', 'x'.repeat(43))
+    .expect(404);
+  const guest = (req) => req.set('X-Conversation-Token', created.accessToken);
+  const visible = (
+    await guest(request(http).get(`${api}/team/conversations/${created.id}`)).expect(200)
+  ).body;
+  assert.equal(visible.accessToken, undefined);
+  assert.equal(visible.visitorTokenHash, undefined);
+  assert.equal(visible.messages[0].body, input.body);
+  await guest(request(http).post(`${api}/team/conversations/${created.id}/messages`))
+    .send({ body: 'Pretend staff', sender: 'STAFF' })
+    .expect(400);
+  const followUp = (
+    await guest(request(http).post(`${api}/team/conversations/${created.id}/messages`))
+      .send({ body: 'A visitor follow-up.' })
+      .expect(201)
+  ).body;
+  assert.equal(followUp.message.sender, 'VISITOR');
+
+  const ownInbox = (await auth(request(http).get(`${api}/team/inbox`), session).expect(200)).body;
+  assert.ok(ownInbox.data.some((thread) => thread.id === created.id));
+  const otherInbox = (await auth(request(http).get(`${api}/team/inbox`), otherSession).expect(200))
+    .body;
+  assert.ok(!otherInbox.data.some((thread) => thread.id === created.id));
+  await auth(request(http).get(`${api}/team/inbox/${created.id}`), otherSession).expect(404);
+  const messageCount = await prisma.teamMessage.count({ where: { conversationId: created.id } });
+  await auth(request(http).post(`${api}/team/inbox/${created.id}/replies`), otherSession)
+    .send({ body: 'A reply to somebody else.' })
+    .expect(404);
+  assert.equal(
+    await prisma.teamMessage.count({ where: { conversationId: created.id } }),
+    messageCount,
+  );
+  const reply = (
+    await auth(request(http).post(`${api}/team/inbox/${created.id}/replies`), session)
+      .send({ body: 'A private staff answer.' })
+      .expect(201)
+  ).body;
+  assert.equal(reply.message.sender, 'STAFF');
+  const answer = (
+    await guest(request(http).get(`${api}/team/conversations/${created.id}`)).expect(200)
+  ).body;
+  assert.ok(
+    answer.messages.some(
+      (message) => message.id === reply.message.id && message.body === reply.message.body,
+    ),
+  );
+
+  // A second thread supplies a real foreign cursor; that UUID cannot reveal its messages.
+  const otherThread = await prisma.teamConversation.create({
+    data: {
+      memberId: stranger.profile.id,
+      visitorName: 'Other Synthetic Visitor',
+      visitorEmail: `other-team-visitor-${runId}@example.test`,
+      visitorTokenHash: hashToken(randomBytes(32).toString('base64url')),
+      visitorTokenExpiresAt: new Date(Date.now() + 86400000),
+      messages: { create: { sender: 'VISITOR', body: 'Foreign private message' } },
+    },
+    include: { messages: true },
+  });
+  await guest(request(http).get(`${api}/team/conversations/${otherThread.id}`)).expect(404);
+  await guest(
+    request(http).get(
+      `${api}/team/conversations/${created.id}?before=${otherThread.messages[0].id}`,
+    ),
+  ).expect(404);
+  await auth(
+    request(http).get(`${api}/team/inbox/${created.id}?before=${otherThread.messages[0].id}`),
+    session,
+  ).expect(404);
+  await prisma.teamMessage.createMany({
+    data: Array.from({ length: 105 }, (_, index) => ({
+      conversationId: created.id,
+      sender: 'VISITOR',
+      body: `Synthetic history ${index}`,
+      createdAt: new Date(Date.now() + index + 1),
+    })),
+  });
+  const page = (
+    await guest(request(http).get(`${api}/team/conversations/${created.id}`)).expect(200)
+  ).body;
+  assert.equal(page.messages.length, 100);
+  assert.equal(page.hasMore, true);
+  assert.ok(page.nextBefore);
+  const earlier = (
+    await guest(
+      request(http).get(`${api}/team/conversations/${created.id}?before=${page.nextBefore}`),
+    ).expect(200)
+  ).body;
+  assert.equal(earlier.hasMore, false);
+  assert.ok(earlier.messages.length > 0 && earlier.messages.length < 100);
+  const currentIds = new Set(page.messages.map((message) => message.id));
+  assert.ok(earlier.messages.every((message) => !currentIds.has(message.id)));
+
+  await prisma.teamConversation.update({
+    where: { id: created.id },
+    data: { visitorTokenExpiresAt: new Date(Date.now() - 1) },
+  });
+  await guest(request(http).get(`${api}/team/conversations/${created.id}`)).expect(404);
+  await guest(request(http).post(`${api}/team/conversations/${created.id}/messages`))
+    .send({ body: 'Expired receipt.' })
+    .expect(404);
+  await auth(request(http).get(`${api}/team/inbox/${created.id}`), session).expect(200);
+});
+
+test('team password changes revoke every existing session without changing the limited role', async () => {
+  const owner = await createTeamMember('team-password-owner');
+  const first = await login(owner.user);
+  const second = await login(owner.user);
+  await auth(request(http).post(`${api}/auth/change-password`), first)
+    .send({ currentPassword: 'An incorrect password', newPassword: `${password}-changed` })
+    .expect(401);
+  const nextPassword = `${password}-changed`;
+  await auth(request(http).post(`${api}/auth/change-password`), first)
+    .send({ currentPassword: password, newPassword: nextPassword })
+    .expect(204);
+  await auth(request(http).get(`${api}/team/me`), first).expect(401);
+  await auth(request(http).get(`${api}/team/me`), second).expect(401);
+  await request(http)
+    .post(`${api}/auth/refresh`)
+    .set('Origin', origin)
+    .set('Cookie', second.cookies)
+    .set('X-CSRF-Token', second.csrf)
+    .expect(401);
+  await request(http)
+    .post(`${api}/auth/login`)
+    .set('Origin', origin)
+    .send(credentials.get(owner.user.id))
+    .expect(401);
+  credentials.set(owner.user.id, { email: owner.user.email, password: nextPassword });
+  const renewed = await login(owner.user);
+  const profile = (await auth(request(http).get(`${api}/team/me`), renewed).expect(200)).body;
+  assert.equal(profile.id, owner.profile.id);
+  assert.equal(renewed.body.user.role, 'TEAM_MEMBER');
+});
+
+test('administrator dashboard reports database counts and bounded UTC charts without exposing private data to other roles', async () => {
+  const moderator = await login(admin);
+  const member = await createTeamMember('admin-read-denied');
+  const limited = await login(member.user);
+  await request(http).get(`${api}/admin/overview`).expect(401);
+  for (const path of [
+    '/admin/session',
+    '/admin/overview',
+    '/admin/options',
+    '/admin/catalog/areas',
+    '/admin/team',
+    '/admin/conversations',
+    '/admin/audit',
+    '/admin/site-content',
+  ])
+    await auth(request(http).get(`${api}${path}`), limited).expect(403);
+  const overview = (
+    await auth(request(http).get(`${api}/admin/overview?days=7`), moderator).expect(200)
+  ).body;
+  assert.equal(overview.summary.listings, await prisma.listing.count());
+  assert.equal(overview.summary.leads, await prisma.lead.count());
+  assert.equal(overview.daily.length, 7);
+  assert.equal(overview.window.timeZone, 'UTC');
+  assert.ok(
+    overview.daily.every(
+      (day) =>
+        /^\d{4}-\d{2}-\d{2}$/.test(day.date) &&
+        Object.values(day)
+          .slice(1)
+          .every((value) => Number.isInteger(value) && value >= 0),
+    ),
+  );
+  const expectedLeads = await prisma.lead.count({
+    where: {
+      createdAt: { gte: new Date(overview.window.from), lte: new Date(overview.window.to) },
+    },
+  });
+  assert.equal(
+    overview.daily.reduce((sum, day) => sum + day.leads, 0),
+    expectedLeads,
+  );
+  assert.equal(
+    overview.listingStatuses.reduce((sum, row) => sum + row.count, 0),
+    overview.summary.listings,
+  );
+  assert.equal('revenue' in overview.summary, false);
+  assert.equal('visitors' in overview.summary, false);
+  await auth(request(http).get(`${api}/admin/overview?days=15`), moderator).expect(400);
+  const inactive = await prisma.area.create({
+    data: {
+      slug: `admin-inactive-${runId}`,
+      nameEn: 'Inactive editable area',
+      nameAr: 'منطقة غير نشطة',
+      emirate: 'DUBAI',
+      isActive: false,
+    },
+  });
+  await request(http).get(`${api}/areas/${inactive.slug}`).expect(404);
+  const catalog = (
+    await auth(request(http).get(`${api}/admin/catalog/areas?q=Inactive`), moderator).expect(200)
+  ).body;
+  assert.ok(catalog.data.some((row) => row.id === inactive.id && row.isActive === false));
+  const options = (await auth(request(http).get(`${api}/admin/options`), moderator).expect(200))
+    .body;
+  assert.ok(options.areas.some((row) => row.id === inactive.id));
+  assert.ok(options.agents.every((row) => !('passwordHash' in row) && !('sessions' in row)));
+  const unverified = await createUser('ADMIN', 'unverified-admin-dashboard');
+  await prisma.user.update({ where: { id: unverified.id }, data: { emailVerifiedAt: null } });
+  const session = await login(unverified);
+  await auth(request(http).get(`${api}/admin/overview`), session).expect(403);
+});
+
+test('site content updates reach the public endpoint, reject HTML and preserve concurrent edits with optimistic versions', async () => {
+  const moderator = await login(admin);
+  const limited = await login(customer);
+  const initial = (await request(http).get(`${api}/site-content`).expect(200)).body;
+  assert.equal(typeof initial.values['story.0.title1'].en, 'string');
+  assert.equal('fields' in initial, false);
+  await auth(request(http).patch(`${api}/admin/site-content`), limited)
+    .send({
+      expectedVersion: initial.version,
+      values: { 'site.title': { en: 'Denied', ar: 'مرفوض' } },
+    })
+    .expect(403);
+  const update = (
+    await auth(request(http).patch(`${api}/admin/site-content`), moderator)
+      .send({
+        expectedVersion: initial.version,
+        values: {
+          'site.title': { en: 'A managed site title', ar: 'عنوان مُدار للموقع' },
+          'story.0.title1': { en: 'A managed story.', ar: 'حكاية مُدارة.' },
+        },
+      })
+      .expect(200)
+  ).body;
+  assert.equal(update.version, initial.version + 1);
+  assert.ok(update.fields.some((field) => field.key === 'site.title' && field.maxLength === 200));
+  const live = (await request(http).get(`${api}/site-content`).expect(200)).body;
+  assert.equal(live.values['site.title'].en, 'A managed site title');
+  assert.equal(live.values['story.0.title1'].ar, 'حكاية مُدارة.');
+  for (const values of [
+    { unknown: { en: 'x', ar: 'س' } },
+    { 'site.title': { en: '<script>unsafe</script>', ar: 'نص' } },
+    { 'site.name': { en: '', ar: 'اسم' } },
+  ])
+    await auth(request(http).patch(`${api}/admin/site-content`), moderator)
+      .send({ expectedVersion: update.version, values })
+      .expect(400);
+  const attempts = await Promise.all(
+    ['First writer', 'Second writer'].map((en) =>
+      auth(request(http).patch(`${api}/admin/site-content`), moderator).send({
+        expectedVersion: update.version,
+        values: { 'site.title': { en, ar: 'كاتب' } },
+      }),
+    ),
+  );
+  assert.deepEqual(attempts.map((result) => result.status).sort(), [200, 409]);
+  const after = (await request(http).get(`${api}/site-content`).expect(200)).body;
+  assert.equal(after.version, update.version + 1);
+  assert.ok(['First writer', 'Second writer'].includes(after.values['site.title'].en));
+});
+
+test('administrators manage team profiles and conversations while promoted staff retain their public identity and own workspace', async () => {
+  const moderator = await login(admin);
+  const image = await upload(moderator);
+  const email = `managed-team-${runId}@example.test`;
+  const created = (
+    await auth(request(http).post(`${api}/admin/team`), moderator)
+      .send({
+        email,
+        password,
+        firstName: 'Managed',
+        lastName: 'Team',
+        role: 'TEAM_MEMBER',
+        slug: `managed-team-${runId}`,
+        displayName: 'Managed Team',
+        titleEn: 'Manager',
+        titleAr: 'مدير',
+        avatarMediaId: image.id,
+        isPublic: true,
+      })
+      .expect(201)
+  ).body;
+  assert.equal(created.user.role, 'TEAM_MEMBER');
+  assert.equal('passwordHash' in created.user, false);
+  credentials.set(created.user.id, { email, password });
+  const own = await login(created.user);
+  const guest = (
+    await request(http)
+      .post(`${api}/team/conversations`)
+      .send({
+        memberId: created.id,
+        name: 'Administrative test visitor',
+        email: 'private-visitor@example.test',
+        body: 'A private request to the managed profile.',
+        consent: true,
+      })
+      .expect(201)
+  ).body;
+  const inbox = (
+    await auth(
+      request(http).get(`${api}/admin/conversations?memberId=${created.id}`),
+      moderator,
+    ).expect(200)
+  ).body;
+  assert.ok(inbox.data.some((row) => row.id === guest.id && row.messageCount === 1));
+  assert.equal(JSON.stringify(inbox).includes(guest.accessToken), false);
+  assert.equal(JSON.stringify(inbox).includes('visitorTokenHash'), false);
+  const thread = (
+    await auth(request(http).get(`${api}/admin/conversations/${guest.id}`), moderator).expect(200)
+  ).body;
+  assert.equal(thread.messages[0].body, 'A private request to the managed profile.');
+  await auth(request(http).post(`${api}/admin/conversations/${guest.id}/replies`), moderator)
+    .send({ body: 'An administrator reply.' })
+    .expect(201);
+  const live = (
+    await request(http)
+      .get(`${api}/team/conversations/${guest.id}`)
+      .set('X-Conversation-Token', guest.accessToken)
+      .expect(200)
+  ).body;
+  assert.ok(
+    live.messages.some(
+      (message) => message.body === 'An administrator reply.' && message.sender === 'STAFF',
+    ),
+  );
+  await auth(request(http).patch(`${api}/admin/team/${created.id}`), moderator)
+    .send({ role: 'ADMIN' })
+    .expect(400);
+  await auth(request(http).patch(`${api}/admin/team/${created.id}`), moderator)
+    .send({ titleEn: 'Updated public title', isPublic: true })
+    .expect(200);
+  await auth(request(http).patch(`${api}/users/${created.user.id}`), moderator)
+    .send({ role: 'ADMIN' })
+    .expect(200);
+  await auth(request(http).get(`${api}/team/me`), own).expect(401);
+  const promoted = await login(created.user);
+  const identity = (await auth(request(http).get(`${api}/team/me`), promoted).expect(200)).body;
+  assert.equal(identity.id, created.id);
+  assert.equal(identity.titleEn, 'Updated public title');
+  const publicDirectory = (await request(http).get(`${api}/team/members`).expect(200)).body;
+  assert.ok(publicDirectory.data.some((row) => row.id === created.id));
+  await request(http).get(`${api}/media/${image.id}/file`).expect(200);
+  await auth(request(http).get(`${api}/team/inbox/${guest.id}`), promoted).expect(200);
+  const foreign = await createTeamMember('foreign-admin-profile');
+  const foreignThread = (
+    await request(http)
+      .post(`${api}/team/conversations`)
+      .send({
+        memberId: foreign.profile.id,
+        name: 'Another visitor',
+        email: 'another-visitor@example.test',
+        body: 'A different member private request.',
+        consent: true,
+      })
+      .expect(201)
+  ).body;
+  await auth(request(http).get(`${api}/team/inbox/${foreignThread.id}`), promoted).expect(404);
+  await auth(request(http).get(`${api}/admin/conversations/${foreignThread.id}`), promoted).expect(
+    200,
+  );
+});
+
+test('administrator password resets revoke sessions and reset links without exposing secrets', async () => {
+  const moderator = await login(admin);
+  const target = await createUser('CUSTOMER', 'admin-reset-target');
+  const old = await login(target);
+  await request(http)
+    .post(`${api}/auth/password-reset/request`)
+    .set('Origin', origin)
+    .send({ email: target.email })
+    .expect(202);
+  const newPassword = `${password}-administrative-reset`;
+  await auth(request(http).post(`${api}/admin/users/${target.id}/password`), moderator)
+    .send({ newPassword: 'short' })
+    .expect(400);
+  const reset = (
+    await auth(request(http).post(`${api}/admin/users/${target.id}/password`), moderator)
+      .send({ newPassword })
+      .expect(201)
+  ).body;
+  assert.equal(JSON.stringify(reset).includes(newPassword), false);
+  await auth(request(http).get(`${api}/auth/me`), old).expect(401);
+  await request(http)
+    .post(`${api}/auth/refresh`)
+    .set('Origin', origin)
+    .set('Cookie', old.cookies)
+    .set('X-CSRF-Token', old.csrf)
+    .expect(401);
+  assert.equal(await prisma.oneTimeToken.count({ where: { userId: target.id, usedAt: null } }), 0);
+  credentials.set(target.id, { email: target.email, password: newPassword });
+  await login(target);
+  const audit = await prisma.auditLog.findMany({
+    where: { entityId: target.id },
+    select: { metadata: true },
+  });
+  assert.equal(JSON.stringify(audit).includes(newPassword), false);
+});
+
+function richParagraph(text, marks) {
+  return { type: 'paragraph', content: [{ type: 'text', text, ...(marks ? { marks } : {}) }] };
+}
+function richImage(mediaId) {
+  return {
+    type: 'image',
+    attrs: {
+      mediaId,
+      alt: 'A verified library image',
+      caption: 'A considered place to live.',
+      width: 'wide',
+      align: 'center',
+    },
+  };
+}
+function richDocument(...content) {
+  return { type: 'doc', content };
+}
+function richTable() {
+  return {
+    type: 'table',
+    content: [
+      {
+        type: 'tableRow',
+        content: [
+          { type: 'tableHeader', content: [richParagraph('Feature')] },
+          { type: 'tableHeader', content: [richParagraph('Detail')] },
+        ],
+      },
+      {
+        type: 'tableRow',
+        content: [
+          { type: 'tableCell', content: [richParagraph('Location')] },
+          { type: 'tableCell', content: [richParagraph('Dubai')] },
+        ],
+      },
+    ],
+  };
+}
+function articleInput(slug) {
+  return {
+    slug,
+    type: 'NEWS',
+    titleEn: 'A new perspective on living',
+    titleAr: 'منظور جديد للحياة',
+    excerptEn: 'A concise guide to a considered home.',
+    excerptAr: 'دليل موجز لاختيار منزل مناسب.',
+    bodyEn: 'A complete English article body for integration verification.',
+    bodyAr: 'محتوى عربي كامل للمقال التجريبي المستخدم في الاختبارات.',
+  };
+}
+
+test('rich news content derives searchable text, keeps drafts private and tracks inline image lifetime', async () => {
+  const administrator = await login(admin),
+    owner = await login(otherAgent);
+  const inline = await upload(owner);
+  const document = richDocument(
+    {
+      type: 'heading',
+      attrs: { level: 2, textAlign: null },
+      content: [
+        { type: 'text', text: 'A new chapter', marks: [{ type: 'bold' }, { type: 'italic' }] },
+      ],
+    },
+    richParagraph('A literal <script> stays escaped content, not executable HTML.'),
+    richParagraph('Read the guide.', [
+      {
+        type: 'link',
+        attrs: {
+          href: '/en/insights',
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
+          class: null,
+        },
+      },
+    ]),
+    richTable(),
+    richImage(inline.id),
+  );
+  const input = {
+    ...articleInput(`rich-news-${runId}`),
+    bodyEn: 'Untrusted companion text must be replaced.',
+    bodyRichEn: document,
+  };
+  const created = await auth(request(http).post(`${api}/content/manage`), administrator)
+    .send(input)
+    .expect(201);
+  assert.match(created.body.bodyEn, /A literal <script>/);
+  assert.doesNotMatch(created.body.bodyEn, /Untrusted companion/);
+  assert.equal(created.body.bodyRichEn.type, 'doc');
+  assert.equal(
+    await prisma.articleRichMedia.count({
+      where: { articleId: created.body.id, mediaId: inline.id },
+    }),
+    1,
+  );
+  await request(http).get(`${api}/content/${input.slug}`).expect(404);
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  await auth(request(http).delete(`${api}/media/${inline.id}`), administrator).expect(409);
+  const published = await auth(
+    request(http).post(`${api}/content/manage/${created.body.id}/publish`),
+    administrator,
+  )
+    .send({ version: created.body.version })
+    .expect(201);
+  const publicArticle = await request(http).get(`${api}/content/${input.slug}`).expect(200);
+  assert.equal(
+    publicArticle.body.bodyRichEn.content.find((node) => node.type === 'image').attrs.mediaId,
+    inline.id,
+  );
+  await request(http)
+    .get(`${api}/media/${inline.id}/file`)
+    .expect(200)
+    .expect('Content-Type', /image\/webp/);
+  const summaries = await request(http).get(`${api}/content`).query({ type: 'NEWS' }).expect(200);
+  const summary = summaries.body.data.find((row) => row.id === created.body.id);
+  assert.ok(summary);
+  assert.equal('bodyRichEn' in summary, false);
+  assert.equal('bodyEn' in summary, false);
+  const edited = await auth(
+    request(http).patch(`${api}/content/manage/${created.body.id}`),
+    administrator,
+  )
+    .send({
+      version: published.body.version,
+      bodyEn: 'A new plain-text revision intentionally removes the old formatting.',
+    })
+    .expect(200);
+  assert.equal(edited.body.bodyRichEn, null);
+  assert.equal(edited.body.status, 'DRAFT');
+  assert.equal(await prisma.articleRichMedia.count({ where: { articleId: created.body.id } }), 0);
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  await auth(request(http).delete(`${api}/media/${inline.id}`), administrator).expect(204);
+  await auth(request(http).patch(`${api}/content/manage/${created.body.id}`), administrator)
+    .send({ version: published.body.version, bodyRichEn: document })
+    .expect(409);
+});
+
+test('rich listing descriptions enforce agent ownership, preserve the other locale and withdraw edited publication', async () => {
+  const owner = await login(agent),
+    foreign = await login(otherAgent),
+    administrator = await login(admin),
+    customerSession = await login(customer);
+  const foreignImage = await upload(foreign),
+    inline = await upload(owner),
+    gallery = await upload(owner);
+  const base = {
+    ...listingInput(`rich-listing-${runId}`),
+    media: [{ mediaId: gallery.id, position: 0 }],
+    descriptionRichEn: richDocument(
+      richParagraph('A detailed English description for a considered new property.'),
+      richImage(inline.id),
+    ),
+    descriptionRichAr: richDocument(
+      richParagraph('وصف عربي مفصل للعقار التجريبي يوضح خصائص المكان.'),
+    ),
+  };
+  await auth(request(http).post(`${api}/listings/manage`), owner)
+    .send({
+      ...base,
+      slug: `foreign-rich-${runId}`,
+      descriptionRichEn: richDocument(
+        richParagraph('A sufficiently detailed description of a fictional property.'),
+        richImage(foreignImage.id),
+      ),
+    })
+    .expect(400);
+  await auth(request(http).post(`${api}/listings/manage`), customerSession)
+    .send(base)
+    .expect(403);
+  const created = await auth(request(http).post(`${api}/listings/manage`), owner)
+    .send(base)
+    .expect(201);
+  const savedArabic = created.body.descriptionRichAr;
+  assert.equal(await prisma.listingRichMedia.count({ where: { listingId: created.body.id } }), 1);
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  await auth(request(http).delete(`${api}/media/${inline.id}`), owner).expect(409);
+  const published = await publish(created.body, owner, administrator);
+  const publicListing = await request(http).get(`${api}/listings/${base.slug}`).expect(200);
+  assert.deepEqual(publicListing.body.descriptionRichAr, savedArabic);
+  assert.equal(publicListing.body.descriptionRichEn.type, 'doc');
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(200);
+  await auth(request(http).get(`${api}/listings/manage/${created.body.id}`), foreign).expect(404);
+  const edited = await auth(request(http).patch(`${api}/listings/manage/${created.body.id}`), owner)
+    .send({
+      version: published.version,
+      descriptionRichEn: richDocument(
+        richParagraph('A revised description that no longer includes an inline image.'),
+      ),
+    })
+    .expect(200);
+  assert.deepEqual(edited.body.descriptionRichAr, savedArabic);
+  assert.equal(edited.body.status, 'IN_REVIEW');
+  await request(http).get(`${api}/listings/${base.slug}`).expect(404);
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  await auth(request(http).delete(`${api}/media/${inline.id}`), owner).expect(204);
+});
+
+test('published project rich images follow area and developer eligibility and explicit formatting removal', async () => {
+  const administrator = await login(admin),
+    inline = await upload(administrator),
+    gallery = await upload(administrator);
+  const developer = await prisma.developer.create({
+    data: { slug: `rich-developer-${runId}`, nameEn: 'Rich developer', nameAr: 'مطور تجريبي' },
+  });
+  const input = {
+    slug: `rich-project-${runId}`,
+    nameEn: 'A considered new development',
+    nameAr: 'مشروع سكني تجريبي',
+    descriptionEn: 'A sufficiently detailed project description for isolated tests.',
+    descriptionAr: 'وصف عربي مفصل للمشروع التجريبي المستخدم في الاختبارات.',
+    descriptionRichEn: richDocument(
+      richParagraph('A considered development with a real payment plan and useful details.'),
+      richImage(inline.id),
+    ),
+    minBedrooms: 1,
+    maxBedrooms: 3,
+    propertyTypes: ['APARTMENT'],
+    priceOnRequest: true,
+    handoverDate: '2028-01-01',
+    areaId: area.id,
+    developerId: developer.id,
+    media: [{ mediaId: gallery.id, position: 0 }],
+  };
+  const created = await auth(request(http).post(`${api}/projects/manage`), administrator)
+    .send(input)
+    .expect((response) => assert.equal(response.status, 201, JSON.stringify(response.body)));
+  const submitted = await auth(
+    request(http).post(`${api}/projects/manage/${created.body.id}/submit`),
+    administrator,
+  )
+    .send({ version: created.body.version })
+    .expect(201);
+  const published = await auth(
+    request(http).post(`${api}/projects/manage/${created.body.id}/publish`),
+    administrator,
+  )
+    .send({ version: submitted.body.version })
+    .expect(201);
+  const detail = await request(http).get(`${api}/projects/${input.slug}`).expect(200);
+  assert.equal(detail.body.descriptionRichEn.type, 'doc');
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(200);
+  await prisma.developer.update({ where: { id: developer.id }, data: { isActive: false } });
+  await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  await prisma.developer.update({ where: { id: developer.id }, data: { isActive: true } });
+  try {
+    await prisma.area.update({ where: { id: area.id }, data: { isActive: false } });
+    await request(http).get(`${api}/media/${inline.id}/file`).expect(404);
+  } finally {
+    await prisma.area.update({ where: { id: area.id }, data: { isActive: true } });
+  }
+  const cleared = await auth(
+    request(http).patch(`${api}/projects/manage/${created.body.id}`),
+    administrator,
+  )
+    .send({ version: published.body.version, descriptionRichEn: null })
+    .expect(200);
+  assert.equal(cleared.body.descriptionRichEn, null);
+  assert.match(cleared.body.descriptionEn, /A considered development/);
+  await auth(request(http).delete(`${api}/media/${inline.id}`), administrator).expect(204);
+});
+
+test('rich API rejects unsafe structures and deeply nested content before persistence', async () => {
+  const administrator = await login(admin);
+  const bodies = [
+    richDocument({ type: 'iframe', attrs: { src: 'https://example.test' } }),
+    richDocument(
+      richParagraph('Unsafe links are never stored.', [
+        { type: 'link', attrs: { href: 'javascript:alert(1)' } },
+      ]),
+    ),
+    richDocument({
+      type: 'image',
+      attrs: {
+        src: 'https://example.test/image.jpg',
+        mediaId: '0f000000-0000-4000-8000-000000000001',
+      },
+    }),
+    richDocument({
+      type: 'paragraph',
+      attrs: { style: 'background:url(javascript:bad)' },
+      content: [{ type: 'text', text: 'Unsafe attribute' }],
+    }),
+    richDocument({
+      type: 'table',
+      content: [
+        {
+          type: 'tableRow',
+          content: [
+            { type: 'tableCell', attrs: { colspan: 30 }, content: [richParagraph('Too wide')] },
+          ],
+        },
+      ],
+    }),
+  ];
+  let nested = richParagraph('Too deep');
+  for (let index = 0; index < 1000; index++) nested = { type: 'blockquote', content: [nested] };
+  bodies.push(richDocument(nested));
+  for (let index = 0; index < bodies.length; index++)
+    await auth(request(http).post(`${api}/content/manage`), administrator)
+      .send({ ...articleInput(`rejected-rich-${index}-${runId}`), bodyRichEn: bodies[index] })
+      .expect(400);
+  let unknown = {};
+  for (let index = 0; index < 1000; index++) unknown = { nested: unknown };
+  await auth(request(http).post(`${api}/content/manage`), administrator)
+    .send({ ...articleInput(`rejected-rich-extra-${runId}`), unknown })
+    .expect(400);
+  assert.equal(
+    await prisma.article.count({ where: { slug: { startsWith: `rejected-rich-` } } }),
+    0,
+  );
 });

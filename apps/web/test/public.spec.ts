@@ -1,19 +1,33 @@
 import { expect, test } from '@playwright/test';
 
-test('the full-screen construction story builds from zero and reaches completion with scroll', async ({
+test('the Burj Khalifa story builds through a minute-long scroll and rewinds cleanly', async ({
   page,
 }) => {
+  test.setTimeout(120000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  const scrollToBuild = async (progress: number) => {
+    await page.evaluate((value) => {
+      const story = document.querySelector('#story')!;
+      const start = story.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: start + (story.scrollHeight - window.innerHeight) * value,
+        behavior: 'instant',
+      });
+    }, progress);
+  };
   await page.goto('/');
   await expect(page).toHaveURL(/\/en\/?$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   const scene = page.locator('[data-scene-stage]');
   await expect(scene.locator('canvas')).toBeVisible({ timeout: 20000 });
+  await expect(scene).toHaveAttribute('data-scene-ready', 'true', { timeout: 40000 });
+  await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 30000 });
   await expect(scene).not.toHaveAttribute('data-webgl-fallback', 'true');
+  await expect(scene).toHaveAttribute('data-landmark', 'burj-khalifa');
   await expect(scene).toHaveAttribute('data-scene-stage', 'vision');
-  await expect(scene).toHaveAttribute('data-build-progress', /^\d+(?:\.\d+)?$/);
+  await expect(scene).toHaveAttribute('data-built-floors', '0');
   await expect
     .poll(async () => Number(await scene.getAttribute('data-build-progress')))
     .toBeLessThan(1);
@@ -25,38 +39,28 @@ test('the full-screen construction story builds from zero and reaches completion
     .poll(async () => (await scene.locator('canvas').boundingBox())?.height ?? 0)
     .toBeGreaterThan(viewport.height * 0.8);
   await expect(page.locator('#story')).toHaveClass(/cinematic-story/);
-  await expect(page.locator('.story-chapter')).toHaveCount(7);
+  await expect(page.locator('#story')).toHaveAttribute('data-target-scroll-seconds', '60');
+  await expect(page.locator('.story-chapter')).toHaveCount(12);
   expect(
     await page.locator('#story').evaluate((element) => element.scrollHeight - innerHeight),
-  ).toBeGreaterThanOrEqual(9500);
+  ).toBeGreaterThanOrEqual(19000);
   await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '0');
-  await page.evaluate(() => {
-    const story = document.querySelector('#story')!;
-    const top = story.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({
-      top: top + (story.scrollHeight - window.innerHeight) * 0.51,
-      behavior: 'instant',
-    });
-  });
-  await expect(scene).toHaveAttribute('data-scene-stage', 'structure');
+
+  await scrollToBuild(0.51);
+  await expect(scene).toHaveAttribute('data-scene-stage', 'vertical');
   await expect
     .poll(async () => Number(await scene.getAttribute('data-build-progress')))
     .toBeGreaterThan(45);
   await expect
     .poll(async () => Number(await scene.getAttribute('data-build-progress')))
     .toBeLessThan(60);
-  await page.evaluate(() => {
-    const story = document.querySelector('#story')!;
-    window.scrollTo({
-      top:
-        story.getBoundingClientRect().top +
-        window.scrollY +
-        (story.scrollHeight - window.innerHeight) * 0.86,
-      behavior: 'instant',
-    });
-  });
-  await expect(scene).toHaveAttribute('data-scene-stage', 'living');
-  await expect(page.locator('.cinematic-caption h2')).toContainText('Then, a belonging.');
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-built-floors')))
+    .toBeGreaterThan(0);
+
+  await scrollToBuild(0.68);
+  await expect(scene).toHaveAttribute('data-scene-stage', 'envelope');
+  await expect(page.locator('.cinematic-caption h2')).toContainText('A changing horizon.');
   await expect
     .poll(() =>
       page.locator('.cinematic-caption h2').evaluate((element) => {
@@ -67,25 +71,21 @@ test('the full-screen construction story builds from zero and reaches completion
       }),
     )
     .toBe(true);
-  await page.evaluate(() => {
-    const story = document.querySelector('#story')!;
-    const top = story.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({
-      top: top + (story.scrollHeight - window.innerHeight) * 0.95,
-      behavior: 'instant',
-    });
-  });
+
+  await scrollToBuild(0.95);
+  await expect(scene).toHaveAttribute('data-scene-stage', 'handover');
+  await scrollToBuild(0.99);
   await expect(scene).toHaveAttribute('data-scene-stage', 'investment');
-  await page.evaluate(() => {
-    const story = document.querySelector('#story')!;
-    window.scrollTo({
-      top: story.getBoundingClientRect().top + scrollY + story.scrollHeight - innerHeight,
-      behavior: 'instant',
-    });
-  });
+  await scrollToBuild(1);
   await expect
     .poll(async () => Number(await scene.getAttribute('data-build-progress')))
     .toBeGreaterThan(99);
+  await expect(scene).toHaveAttribute('data-built-floors', '163');
+  await expect(scene).toHaveAttribute('data-camera-settled', 'true', { timeout: 20000 });
+  await expect
+    .poll(async () => Number(await scene.getAttribute('data-depth-near')))
+    .toBeGreaterThan(1);
+  await expect(scene).toHaveAttribute('data-crane-visible', 'false');
   await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '100');
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
@@ -100,6 +100,11 @@ test('the full-screen construction story builds from zero and reaches completion
         .evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).a),
     )
     .toBeGreaterThan(0.99);
+
+  await scrollToBuild(0);
+  await expect(scene).toHaveAttribute('data-scene-stage', 'vision');
+  await expect(scene).toHaveAttribute('data-built-floors', '0');
+  await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '0');
   expect(errors).toEqual([]);
 });
 
@@ -210,11 +215,17 @@ test('Arabic mobile pages and reduced-motion story remain usable', async ({ brow
       'complete',
     );
     await expect(page.locator('#story')).toHaveClass(/cinematic-reduced/);
+    await expect(page.locator('[data-landmark="burj-khalifa"]')).toHaveAttribute(
+      'data-scene-ready',
+      'true',
+      { timeout: 30000 },
+    );
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 20000 });
     await expect(page.getByTestId('construction-progress')).toHaveAttribute('aria-valuenow', '100');
     await expect(page.locator('.story-chapter').first()).toBeVisible();
-    expect(await page.locator('#story').evaluate((element) => element.scrollHeight)).toBeLessThan(
-      5000,
-    );
+    await expect
+      .poll(() => page.locator('#story').evaluate((element) => element.scrollHeight))
+      .toBeLessThan(5000);
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth))
       .toBeLessThanOrEqual(1);

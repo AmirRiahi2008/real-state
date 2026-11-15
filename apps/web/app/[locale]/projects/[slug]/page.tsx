@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowUpRight, Check, MapPin } from 'lucide-react';
 import LeadForm from '@/components/lead-form';
+import RichContentRenderer from '@/components/rich-content';
 import { propertyTypeLabel } from '../../properties/property-utils';
 import { formatMoney, localized, mediaUrl, type Locale } from '@/lib/api';
 import '../../properties/properties.css';
@@ -83,13 +84,12 @@ export default async function ProjectDetailPage({
               <h2>
                 {ar ? 'حياة جديدة، منذ الفكرة الأولى.' : 'A new way of living, from the ground up.'}
               </h2>
-              <div className="catalog-description">
-                {localized(project, 'description', locale)
-                  .split(/\n\s*\n/)
-                  .map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-              </div>
+              <RichContentRenderer
+                className="catalog-description"
+                locale={locale}
+                document={ar ? project.descriptionRichAr : project.descriptionRichEn}
+                plainText={localized(project, 'description', locale)}
+              />
               <dl className="catalog-specifications">
                 <div>
                   <dt>{ar ? 'المطور' : 'Developer'}</dt>
